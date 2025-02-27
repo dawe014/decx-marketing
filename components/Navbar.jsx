@@ -11,15 +11,15 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="shadow-md ">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <nav className="w-screen shadow-md z-50 bg-white fixed top-0 left-0 right-0">
+      <div className="mx-auto max-w-7xl px-6  lg:px-8 z-50">
         <div className=" relative flex h-20 items-center justify-between">
           <div className="flex flex-1  items-center justify-center md:items-stretch md:justify-start">
             {/* <!-- Logo --> */}
             <Link className="flex flex-shrink-0 items-center" href="/">
-              <span className=" text-secondary text-2xl font-bold ml-2">
-                BrandBoost
-              </span>
+              <p className=" text-secondary text-2xl font-bold ml-2">
+                Brand<span className="text-primary">Boost</span>
+              </p>
             </Link>
             {/* <!-- Desktop Menu Hidden below md screens --> */}
             <div className="hidden md:ml-6 md:block">
