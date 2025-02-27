@@ -9,6 +9,7 @@ import { MdClose, MdMenu } from "react-icons/md";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+
   return (
     <nav className="shadow-md ">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -26,32 +27,40 @@ export default function Navbar() {
                 <Link
                   href="/"
                   className={`${
-                    pathname === "/" ? " font-extrabold" : ""
-                  } text-secondary hover:font-extrabold hover:text-secondary rounded-md px-3 py-2`}
+                    pathname === "/"
+                      ? " font-extrabold text-secondary"
+                      : "text-secondary/70"
+                  }  hover:text-secondary rounded-md px-3 py-2`}
                 >
                   Home
                 </Link>
                 <Link
                   href="/about"
                   className={`${
-                    pathname === "/about" ? " font-extrabold" : ""
-                  } text-secondary hover:font-extrabold hover:text-secondary rounded-md px-3 py-2`}
+                    pathname === "/about"
+                      ? " font-extrabold text-secondary"
+                      : "text-secondary/70"
+                  }  hover:text-secondary rounded-md px-3 py-2`}
                 >
                   About
                 </Link>
                 <Link
                   href="/find-influencer"
                   className={`${
-                    pathname === "/find-influencer" ? " font-extrabold" : ""
-                  } text-secondary hover:font-extrabold hover:text-secondary rounded-md px-3 py-2`}
+                    pathname === "/find-influencer"
+                      ? " font-extrabold text-secondary"
+                      : "text-secondary/70"
+                  }  hover:text-secondary rounded-md px-3 py-2`}
                 >
                   Find Influencer
                 </Link>
                 <Link
                   href="/find-influencer"
                   className={`${
-                    pathname === "/find-influencer" ? " font-extrabold" : ""
-                  } text-secondary hover:font-extrabold hover:text-secondary rounded-md px-3 py-2`}
+                    pathname === "/find-influencer"
+                      ? " font-extrabold text-secondary"
+                      : "text-secondary/70"
+                  }  hover:text-secondary rounded-md px-3 py-2`}
                 >
                   Why BrandBoost
                 </Link>
