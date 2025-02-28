@@ -45,7 +45,7 @@ export default function Home() {
         </div>
       </section>
       <section className="">
-        <div className="mx-auto  max-w-7xl py-6 px-6 lg:px-8">
+        <div className="mx-auto  max-w-7xl py-6 px-6 lg:px-8 mb-6">
           <div className="mt-12 mb-12 p-4 grid grid-cols-3 md:grid-cols-6 gap-5 w-full  items-center justify-center">
             <div className="flex flex-col gap-1 shadow-md items-center justify-center">
               <FaYoutube size={32} className=" bg-white text-red-500" />
@@ -66,7 +66,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-1 shadow-md items-center justify-center ">
-              <FaInstagram size={32} className=" bg-white text-red-500" />
+              <FaInstagram size={32} className=" bg-white text-pink-500" />
               <p className="font-bold text-xl text-secondary">
                 6M+ <br />{" "}
                 <span className="text-secondary font-light text-sm">

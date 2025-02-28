@@ -13,7 +13,7 @@ export default {
         secondary: "#1a1a1a", // Dark gray/black (for text)
         accent: "#ffcc00", // Yellow/orange accent (if needed)
         background: "#ffffff", // White background
-        muted: "#161616", // Light gray for subtle UI elements
+        muted: "#9ca3af", // Light gray for subtle UI elements
       },
       fontFamily: {
         sans: ["Poppins", "sans-serif"],
