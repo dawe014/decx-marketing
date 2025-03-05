@@ -1,0 +1,28 @@
+[
+    {
+        "brandName": "Nike",
+        "brandLogo": "https://example.com/logos/nike.png",
+        "jobTitle": "Instagram Sneaker Campaign",
+        "platform": [
+            "Instagram"
+        ],
+        "budget": 1200,
+        "description": "We are launching our new sneaker collection and are looking for Instagram influencers to showcase our products through creative posts, unboxings, and stories. Ideal candidates should have a strong fashion-forward audience.",
+        "requirements": "Minimum 10k followers, fashion niche, high-quality images.",
+        "location": "Remote",
+        "deadline": "2025-04-15T00:00:00Z"
+    },
+    {
+        "brandName": "Adidas",
+        "brandLogo": "https://example.com/logos/adidas.png",
+        "jobTitle": "YouTube Fitness Promo",
+        "platform": [
+            "YouTube"
+        ],
+        "budget": 2000,
+        "description": "Looking for fitness influencers to create in-depth workout videos wearing our latest gear and highlighting product features, with a link in the video description.",
+        "requirements": "Minimum 15k subscribers, fitness niche.",
+        "location": "USA",
+        "deadline": "2025-05-01T00:00:00Z"
+    }
+]

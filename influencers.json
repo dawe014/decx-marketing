@@ -1,0 +1,42 @@
+[
+    {
+        "name": "John Doe",
+        "profileImage": "https://example.com/profiles/john.png",
+        "socialMedia": {
+            "platform": "Instagram",
+            "followers": 25000,
+            "engagementRate": 4.5,
+            "socialMediaLink": "https://instagram.com/johndoe"
+        },
+        "niche": "Fashion",
+        "location": "New York",
+        "pricing": 500,
+        "reviews": [
+            {
+                "rating": 5,
+                "comment": "John delivered amazing content for our campaign!",
+                "date": "2024-12-20T00:00:00Z"
+            }
+        ]
+    },
+    {
+        "name": "Emily Smith",
+        "profileImage": "https://example.com/profiles/emily.png",
+        "socialMedia": {
+            "platform": "TikTok",
+            "followers": 60000,
+            "engagementRate": 7.2,
+            "socialMediaLink": "https://tiktok.com/@emilysmith"
+        },
+        "niche": "Beauty",
+        "location": "London",
+        "pricing": 700,
+        "reviews": [
+            {
+                "rating": 4,
+                "comment": "Very professional and creative!",
+                "date": "2025-01-15T00:00:00Z"
+            }
+        ]
+    }
+]
