@@ -1,23 +1,25 @@
-import { useState } from 'react'
+"use client";
+
+import { useState } from "react";
 
 const FindJobPage = () => {
-  const [jobs, setJobs] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchJobs = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/api/jobs')
-      const data = await response.json()
-      setJobs(data)
+      const response = await fetch("/api/jobs");
+      const data = await response.json();
+      setJobs(data);
     } catch (err) {
-      console.log(err)
+      console.log(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -31,7 +33,7 @@ const FindJobPage = () => {
         ))}
       </ul>
     </div>
-  )
-}
+  );
+};
 
-export default FindJobPage
+export default FindJobPage;
