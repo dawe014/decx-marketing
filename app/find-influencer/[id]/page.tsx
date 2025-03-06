@@ -8,8 +8,8 @@ export default async function page() {
       {/* <!-- Profile Header --> */}
       <div className="bg-white shadow-md rounded-2xl p-6 flex items-center gap-6">
         <Image
-          width={32}
-          height={32}
+          width={500}
+          height={500}
           src="/profile/pic.png"
           alt="Influencer Profile"
           className="w-32 h-32 rounded-full object-cover"
