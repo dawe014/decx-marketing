@@ -79,41 +79,11 @@ export default function InfluencersPage() {
       </section>
       {/* lists */}
       <section className="bg-white py-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 p-6">
-          <aside className="hidden md:block md:w-1/4 bg-white p-4 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4">Filter</h3>
-
-            <div className="mb-6">
-              <p className="font-medium">Platform</p>
-              <label className="block">
-                <input type="checkbox" /> Instagram
-              </label>
-              <label className="block">
-                <input type="checkbox" /> Youtube
-              </label>
-              <label className="block">
-                <input type="checkbox" /> TikTok
-              </label>
-              <label className="block">
-                <input type="checkbox" /> Facebook
-              </label>
-            </div>
-
-            <div className="mb-6">
-              <p className="font-medium">Location</p>
-              <label className="block">
-                <input type="checkbox" /> Instagram
-              </label>
-            </div>
-
-            <div className="mb-6 font-medium">Budget Range</div>
-            <div className="mb-6 font-medium">Industry</div>
-          </aside>
-
+        <div className="max-w-7xl mx-auto p-6">
           <div className="w-full bg-greay-100 px-3 py-6 shadow">
             <div className=" mx-auto">
               <h1 className="text-3xl font-bold mb-6">Influencers</h1>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-3  gap-y-6">
                 {influencers.map((influencer, index) => (
                   <div
                     key={index}
@@ -123,11 +93,12 @@ export default function InfluencersPage() {
                       <div className="flex flex-col items-center">
                         <div className=" mb-4">
                           <Image
-                            width={32}
-                            height={32}
+                            width={500}
+                            height={500}
                             src="/profile/pic.png"
                             alt="Influencer Profile"
-                            className="w-32 h-32 rounded-full object-cover"
+                            style={{ objectFit: "cover" }}
+                            className="w-32 h-32 rounded-full"
                           />
                         </div>
                         <h2 className="text-lg font-semibold">
