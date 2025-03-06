@@ -22,7 +22,7 @@ export default function Navbar() {
               </p>
             </Link>
             {/* <!-- Desktop Menu Hidden below md screens --> */}
-            <div className="hidden md:ml-6 lg:block">
+            <div className="hidden md:ml-6 md:block">
               <div className="flex space-x-2">
                 <Link
                   href="/"
@@ -68,7 +68,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="hidden lg:block md:ml-6">
+          <div className="hidden md:block md:ml-6">
             <div className="flex items-center gap-4">
               <Button bgColor="bg-primary" textColor="text-white">
                 Join As Brand
@@ -78,7 +78,7 @@ export default function Navbar() {
               </Button>
             </div>
           </div>
-          <div className="absolute inset-y-0 right-0 flex items-center lg:hidden">
+          <div className="absolute inset-y-0 right-0 flex items-center md:hidden">
             {/* <!-- Mobile menu button--> */}
             {!isMobileMenuOpen ? (
               <MdMenu
