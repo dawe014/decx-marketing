@@ -3,13 +3,12 @@ import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-light text-secondary py-10 px-6">
+    <footer className="bg-primary-light text-textPrimary py-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Logo & Description */}
         <div>
           <h2 className="text-2xl font-bold">
-            Brand
-            <span className="text-primary">Boost</span>
+            <span className="text-primary">DECx</span>
           </h2>
           <p className="mt-3 text-greay-400">
             Connect with top influencers and grow your brand with ease.
@@ -25,7 +24,7 @@ export default function Footer() {
         {/* Services */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Services</h3>
-          <ul className="space-y-2 text-muted">
+          <ul className="space-y-2 text-textSecondary">
             <li>
               <Link href="/find-influencer">Find Influencers</Link>
             </li>
@@ -44,7 +43,7 @@ export default function Footer() {
         {/* About Us */}
         <div>
           <h3 className="text-xl font-semibold mb-4">About Us</h3>
-          <ul className="space-y-2 text-muted">
+          <ul className="space-y-2 text-textSecondary">
             <li>
               <Link href="/about">Our Story</Link>
             </li>
@@ -63,8 +62,8 @@ export default function Footer() {
         {/* Contact & Newsletter */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Contact</h3>
-          <p className="text-muted">Email: support@BrandBoost.com</p>
-          <p className="text-muted">Phone: +123 456 7890</p>
+          <p className="text-textSecondary">Email: support@decx.com</p>
+          <p className="text-textSecondary">Phone: +123 456 7890</p>
         </div>
       </div>
       {/* Newsletter Subscription */}
@@ -76,15 +75,15 @@ export default function Footer() {
           <input
             type="email"
             placeholder="Enter your email"
-            className="px-3 py-2 flex-1 bg-primary text-white focus:outline-none"
+            className="px-3 py-2 flex-1 bg-bgService text-white focus:outline-none"
           />
-          <button className="bg-black text-white px-4 py-2">Subscribe</button>
+          <button className="bg-primary text-white px-4 py-2">Subscribe</button>
         </form>
       </div>
       {/* Copyright */}
-      <div className=" text-center text-secondary text-sm mt-8 ">
-        &copy; {new Date().getFullYear()} Brand
-        <span className="text-primary">Boost</span> . All rights reserved.
+      <div className=" text-center text-textPrimary text-sm mt-8 ">
+        &copy; {new Date().getFullYear()}{" "}
+        <span className="text-primary">DECx</span> . All rights reserved.
       </div>
     </footer>
   );
