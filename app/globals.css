@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #111827;
+  --bg-secondary: #111928;
+  --foreground: #fff;
   --primary: #007bff;
   --primary-light: #cce4ff;
   --primary-dark: #0057cc;
@@ -14,35 +15,74 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: var(--bg-secondary);
   font-family: "Poppins", Arial, Helvetica, sans-serif;
 }
+/* .heroBackground {
+  background-image: url("/enfluence1.jpg");
+  background-size: cover;
+  background-position: center;
+} */
+@layer components {
+  /* ✅ Common text styles */
+  .text-heading {
+    @apply text-4xl md:text-6xl font-bold leading-tight text-textPrimary capitalize;
+  }
 
-/* Utility Classes */
-.text-primary {
-  color: var(--primary);
-}
+  .text-subheading {
+    @apply text-xl md:text-2xl font-semibold text-textPrimary;
+  }
 
-.bg-primary {
-  background-color: var(--primary);
-}
+  .text-paragraph {
+    @apply text-base md:text-lg text-textPrimary leading-relaxed;
+  }
 
-.bg-primary-light {
-  background-color: var(--primary-light);
-}
+  /* ✅ Buttons */
+  .btn-primary {
+    @apply bg-primary border-2 border-primary text-black font-semibold py-3 px-6 rounded-lg shadow-btn transition hover:shadow-md;
+  }
 
-.bg-primary-dark {
-  background-color: var(--primary-dark);
-}
+  .btn-secondary {
+    @apply text-primary  border-2 border-primary py-3 px-6 rounded-lg transition hover:bg-opacity-75;
+  }
 
-.text-secondary {
-  color: var(--secondary);
-}
+  /* ✅ Navbar */
+  .navbar {
+    @apply bg-background bg-opacity-90 text-textPrimary flex items-center justify-between px-6 md:px-20 py-4 shadow-md;
+  }
 
-.bg-secondary {
-  background-color: var(--secondary);
-}
+  .nav-link {
+    @apply hover:text-primary transition-colors duration-300;
+  }
 
-.text-muted {
-  color: var(--muted);
+  /* ✅ Hero Section */
+  .hero-section {
+    @apply relative h-screen flex flex-col items-center justify-center text-center px-6 bg-background;
+  }
+
+  .hero-overlay {
+    @apply absolute inset-0 bg-overlay;
+  }
+  .heroBackground {
+    background-image: url("/l1.jpg");
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* ✅ Grid for Features */
+  .feature-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-6 mt-8;
+  }
+
+  .feature-card {
+    @apply flex flex-col items-center justify-center bg-borderColor p-6 rounded-lg text-center;
+  }
+
+  .feature-icon {
+    @apply text-primary text-4xl mb-2;
+  }
+
+  .feature-title {
+    @apply text-lg font-semibold text-textPrimary;
+  }
 }

@@ -9,14 +9,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#007bff", // Blue (from buttons)
-        secondary: "#1a1a1a", // Dark gray/black (for text)
-        accent: "#ffcc00", // Yellow/orange accent (if needed)
-        background: "#ffffff", // White background
-        muted: "#9ca3af", // Light gray for subtle UI elements
+        primary: "#FFC107", // Yellow button & highlights
+        secondary: "#3DBEF3", // Blue highlight
+        background: "#111827", // Dark background
+        bgSecondary: "#111928",
+        bgService: "#060314",
+        overlay: "rgba(17,24,39, 0.7)", // Semi-transparent black overlay
+        textPrimary: "#FFFFFF", // White text
+        textSecondary: "#9CA3AF", // Gray subtext
+        borderColor: "#3A3A3A", // Border & card background
       },
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
+        sans: ["Poppins", "sans-serif"], // Use Poppins for headings
+      },
+      boxShadow: {
+        btn: "0px 4px 6px rgba(255, 193, 7, 0.4)", // Yellow button shadow
       },
     },
   },

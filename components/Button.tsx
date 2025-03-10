@@ -1,13 +1,12 @@
 type Buttonprops = {
   children: string;
-  bgColor: string;
-  textColor: string;
+  btnStyle: string;
 };
 
-export default function Button({ children, bgColor, textColor }: Buttonprops) {
+export default function Button({ children, btnStyle }: Buttonprops) {
   return (
     <button
-      className={`${bgColor} ${textColor} flex items-cent font-bold rounded-full px-4 py-2 my-3`}
+      className={`${btnStyle}  flex items-cent font-bold rounded-full px-4 py-2 my-3`}
     >
       <span>{children}</span>
     </button>
