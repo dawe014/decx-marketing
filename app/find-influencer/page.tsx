@@ -71,14 +71,12 @@ export default function InfluencersPage() {
                 ✕
               </button>
             </div>
-            <Button textColor="text-white" bgColor="bg-primary">
-              Search
-            </Button>
+            <Button btnStyle="btn-primary">Search</Button>
           </div>
         </div>
       </section>
       {/* lists */}
-      <section className="bg-white py-6">
+      <section className="bg-background py-6">
         <div className="max-w-7xl mx-auto p-6">
           <div className="w-full bg-greay-100 px-3 py-6 shadow">
             <div className=" mx-auto">
