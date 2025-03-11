@@ -83,7 +83,8 @@ export default function Footer() {
       {/* Copyright */}
       <div className=" text-center text-textPrimary text-sm mt-8 ">
         &copy; {new Date().getFullYear()}{" "}
-        <span className="text-primary">DECx</span> . All rights reserved.
+        <span className="text-primary">DECx</span> Marketing Agency. All rights
+        reserved.
       </div>
     </footer>
   );

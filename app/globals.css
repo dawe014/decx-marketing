@@ -18,11 +18,7 @@ body {
   background: var(--bg-secondary);
   font-family: "Poppins", Arial, Helvetica, sans-serif;
 }
-/* .heroBackground {
-  background-image: url("/enfluence1.jpg");
-  background-size: cover;
-  background-position: center;
-} */
+
 @layer components {
   /* ✅ Common text styles */
   .text-heading {
