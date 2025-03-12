@@ -1,10 +1,10 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss'
 
 export default {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -20,12 +20,12 @@ export default {
         borderColor: "#3A3A3A", // Border & card background
       },
       fontFamily: {
-        sans: ["Poppins", "sans-serif"], // Use Poppins for headings
+        sans: ['Poppins', 'sans-serif'], // Use Poppins for headings
       },
       boxShadow: {
-        btn: "0px 4px 6px rgba(255, 193, 7, 0.4)", // Yellow button shadow
+        btn: '0px 4px 6px rgba(255, 193, 7, 0.4)', // Yellow button shadow
       },
     },
   },
   plugins: [],
-} satisfies Config;
+} satisfies Config

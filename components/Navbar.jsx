@@ -1,20 +1,27 @@
-"use client";
+'use client'
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Button from "./Button";
 import { MdClose, MdMenu } from "react-icons/md";
-// import logo from "logo.jpg";
 import Image from "next/image";
+
 export default function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   const openModal = () => {
-    setIsModalOpen(true);
-  };
-  const closeModal = () => setIsModalOpen(false);
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => setIsModalOpen(false)
+
+  // Function to close the mobile menu when a link is clicked
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
 
   return (
     <>
@@ -34,84 +41,85 @@ export default function Navbar() {
                   />
                 </div>
               </Link>
-              {/* <!-- Desktop Menu Hidden below md screens --> */}
-              <div className="hidden md:ml-6 md:block md:text-sm ">
-                <div className="flex space-x-2">
+
+              {/* Desktop Menu Hidden below md screens */}
+              <div className='hidden md:ml-6 md:block md:text-sm'>
+                <div className='flex space-x-2'>
                   <Link
-                    href="/"
+                    href='/'
                     className={`${
-                      pathname === "/" ? "  text-primary" : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/' ? 'text-primary' : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Home
                   </Link>
                   <Link
-                    href="/about"
+                    href='/about'
                     className={`${
-                      pathname === "/about"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md  py-2`}
+                      pathname === '/about'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md py-2`}
                   >
                     About
                   </Link>
                   <Link
-                    href="/find-influencer"
+                    href='/find-influencer'
                     className={`${
-                      pathname === "/find-influencer"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/find-influencer'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Find Influencer
                   </Link>
                   <Link
-                    href="/post-need"
+                    href='/post-need'
                     className={`${
-                      pathname === "/post-need"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/post-need'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Post a Need
                   </Link>
                   <Link
-                    href="/pricing"
+                    href='/pricing'
                     className={`${
-                      pathname === "/pricing"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/pricing'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Pricing
                   </Link>
                   <Link
-                    href="/services"
+                    href='/services'
                     className={`${
-                      pathname === "/services"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/services'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Services
                   </Link>
                   <Link
-                    href="/e-magazine"
+                    href='/e-magazine'
                     className={`${
-                      pathname === "/e-magazine"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/e-magazine'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     E-Magazine
                   </Link>
                   <Link
-                    href="/contact-us"
+                    href='/contact-us'
                     className={`${
-                      pathname === "/contact-us"
-                        ? "  text-primary"
-                        : "text-textPrimary"
-                    }  hover:text-primary rounded-md px-3 py-2`}
+                      pathname === '/contact-us'
+                        ? 'text-primary'
+                        : 'text-textPrimary'
+                    } hover:text-primary rounded-md px-3 py-2`}
                   >
                     Contact Us
                   </Link>
@@ -119,15 +127,16 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="hidden md:block md:ml-6">
-              <div className="flex items-center gap-4" onClick={openModal}>
-                <Button btnStyle="btn-primary" onClick={openModal}>
+            <div className='hidden md:block md:ml-6'>
+              <div className='flex items-center gap-4' onClick={openModal}>
+                <Button btnStyle='btn-primary' onClick={openModal}>
                   Join
                 </Button>
               </div>
             </div>
-            <div className="absolute inset-y-0 right-0 flex items-center md:hidden">
-              {/* <!-- Mobile menu button--> */}
+
+            {/* Mobile Menu Button */}
+            <div className='absolute inset-y-0 right-0 flex items-center md:hidden'>
               {!isMobileMenuOpen ? (
                 <MdMenu
                   size={24}
@@ -142,125 +151,126 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-        {/* <!-- Mobile menu, show/hide based on menu state. --> */}
-        {isMobileMenuOpen && (
-          <div id="mobile-menu  ">
-            <div className=" flex flex-col space-y-1 px-2 pb-3 pt-2">
-              <Link
-                href="/"
-                className={`${
-                  pathname === "/" ? "  text-primary" : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/about"
-                className={`${
-                  pathname === "/about" ? "  text-primary" : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                About
-              </Link>
-              <Link
-                href="/find-influencer"
-                className={`${
-                  pathname === "/find-influencer"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Find Influencer
-              </Link>
-              <Link
-                href="/post-need"
-                className={`${
-                  pathname === "/post-need"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Post a Need
-              </Link>
-              <Link
-                href="/pricing"
-                className={`${
-                  pathname === "/pricing"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/services"
-                className={`${
-                  pathname === "/services"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Services
-              </Link>
-              <Link
-                href="/e-magazine"
-                className={`${
-                  pathname === "/e-magazine"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                E-Magazine
-              </Link>
-              <Link
-                href="/contact-us"
-                className={`${
-                  pathname === "/contact-us"
-                    ? "  text-primary"
-                    : "text-textPrimary"
-                }  hover:text-primary rounded-md px-3 py-2`}
-              >
-                Contact Us
-              </Link>
 
-              <div className="block md:ml-6 md:hidden">
-                <div className="flex items-center justify-evenly">
-                  <Button btnStyle="btn-primary">Join As Brand</Button>
-                  <Button btnStyle="btn-secondary">Join As Creator</Button>
-                </div>
+        {/* Mobile Menu */}
+        <div
+          className={`fixed top-20 left-0 right-0 bg-background transition-all duration-300 ease-in-out overflow-hidden ${
+            isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          } md:hidden`}
+        >
+          <div className='flex flex-col space-y-1 px-2 pb-3 pt-2'>
+            <Link
+              href='/'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Home
+            </Link>
+            <Link
+              href='/about'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/about' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              About
+            </Link>
+            <Link
+              href='/find-influencer'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/find-influencer'
+                  ? 'text-primary'
+                  : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Find Influencer
+            </Link>
+            <Link
+              href='/post-need'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/post-need' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Post a Need
+            </Link>
+            <Link
+              href='/pricing'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/pricing' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Pricing
+            </Link>
+            <Link
+              href='/services'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/services' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Services
+            </Link>
+            <Link
+              href='/e-magazine'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/e-magazine' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              E-Magazine
+            </Link>
+            <Link
+              href='/contact-us'
+              onClick={closeMobileMenu}
+              className={`${
+                pathname === '/contact-us' ? 'text-primary' : 'text-textPrimary'
+              } hover:text-primary rounded-md px-3 py-2`}
+            >
+              Contact Us
+            </Link>
+
+            <div className='block md:ml-6 md:hidden'>
+              <div className='flex items-center justify-evenly'>
+                <Button btnStyle='btn-primary'>Join As Brand</Button>
+                <Button btnStyle='btn-secondary'>Join As Creator</Button>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </nav>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+          <div className='bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative'>
             {/* Modal Header */}
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">Join Us</h2>
+            <div className='flex justify-between items-center'>
+              <h2 className='text-xl font-bold text-gray-800'>Join Us</h2>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                className='text-gray-500 hover:text-gray-700 focus:outline-none'
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Content */}
-            <p className="mt-2 text-sm text-gray-600">
-              Choose how youd like to join our platform.
+            <p className='mt-2 text-sm text-gray-600'>
+              Choose how you'd like to join our platform.
             </p>
 
-            <div className="flex  gap-4 mt-6">
-              <Button btnStyle="btn-primary">Join As Brand</Button>
-              <Button btnStyle="btn-secondary">Join As Creator</Button>
+            <div className='flex gap-4 mt-6'>
+              <Button btnStyle='btn-primary'>Join As Brand</Button>
+              <Button btnStyle='btn-secondary'>Join As Creator</Button>
             </div>
           </div>
         </div>
       )}
     </>
-  );
+  )
 }
