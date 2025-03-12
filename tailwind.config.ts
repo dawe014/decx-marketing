@@ -18,7 +18,8 @@ export default {
         textPrimary: '#FFFFFF', // White text
         textSecondary: '#9CA3AF', // Gray subtext
         borderColor: '#3A3A3A', // Border & card background
-        aboutbg: '#4a607a',
+        card2bg: '#4a607a', // lightgray card
+        postbg: '#07263d',
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'], // Use Poppins for headings
