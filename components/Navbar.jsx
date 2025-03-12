@@ -152,7 +152,7 @@ export default function Navbar() {
                 href="/about"
                 className={`${
                   pathname === "/about" ? "  text-primary" : "text-textPrimary"
-                }  hover:text-primary rounded-md  py-2`}
+                }  hover:text-primary rounded-md px-3 py-2`}
               >
                 About
               </Link>
