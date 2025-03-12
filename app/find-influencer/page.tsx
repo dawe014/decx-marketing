@@ -248,7 +248,7 @@ const FindInfluencer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bgService ">
+    <div className="min-h-screen ">
       <div className=" mx-auto max-w-7xl px-6 py-8 md:py-12 lg:px-8">
         <section className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white">

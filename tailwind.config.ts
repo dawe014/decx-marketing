@@ -11,7 +11,7 @@ export default {
       colors: {
         primary: "#FFC107", // Yellow button & highlights
         secondary: "#3DBEF3", // Blue highlight
-        background: "#111827", // Dark background
+        background: "#0B1838", // Dark background
         bgSecondary: "#111928",
         bgService: "#060314",
         overlay: "rgba(17,24,39, 0.7)", // Semi-transparent black overlay

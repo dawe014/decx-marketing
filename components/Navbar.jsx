@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Button from "./Button";
 import { MdClose, MdMenu } from "react-icons/md";
-
+// import logo from "logo.jpg";
+import Image from "next/image";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -23,9 +24,15 @@ export default function Navbar() {
             <div className="flex flex-1  items-center justify-between md:items-stretch md:justify-between">
               {/* <!-- Logo --> */}
               <Link className="flex flex-shrink-0 items-start" href="/">
-                <p className=" text-textPrimary text-2xl font-bold ml-2">
-                  DECx
-                </p>
+                <div>
+                  <Image
+                    src="/logo.jpg"
+                    alt="Logo"
+                    width={500}
+                    height={500}
+                    className="w-24 h-12"
+                  />
+                </div>
               </Link>
               {/* <!-- Desktop Menu Hidden below md screens --> */}
               <div className="hidden md:ml-6 md:block md:text-sm ">

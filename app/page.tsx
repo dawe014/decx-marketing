@@ -86,14 +86,14 @@ export default function Home() {
       </section>
 
       {/* Service section */}
-      <section className="bg-bgService">
+      <section className="bg-bgSecondary border-t border-slate-800">
         <div className="mx-auto  max-w-7xl py-6 px-6 lg:px-8 ">
           <div className="flex flex-col gap-4 items-center justify-center shadow-sm py-5 md:py-12">
             <div className="md:py-6">
               <h2 className="text-subheading">Our Services</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={story}
@@ -110,7 +110,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={video}
@@ -126,7 +126,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={graphics}
@@ -142,7 +142,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={social}
@@ -158,7 +158,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={influencer}
@@ -174,7 +174,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col bg-background  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
+              <div className="flex flex-col bg-slate-800  hover:shadow-primary  rounded-lg shadow w-full  overflow-hidden hover:scale-105 transform duration-300 ">
                 <Image
                   alt="Story image"
                   src={eMagazine}
@@ -196,7 +196,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-bgSecondary">
+      <section className="bg-bgSecondary border-t border-slate-800">
         <div className="mx-auto  max-w-7xl py-6 px-6 lg:px-8  min-h-96 bg-overlay">
           <div className="flex flex-col gap-4 items-center justify-center shadow-sm py-5 md:py-12">
             <div className="">
@@ -206,7 +206,7 @@ export default function Home() {
               <p className="text-md">Real businesses, real impact.</p>
             </div>
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center gap-6 px-4">
-              <div className="shadow-lg p-6 bg-bgSecondary max-w-md">
+              <div className="shadow-lg p-6 bg-slate-800 rounded-lg max-w-md">
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-2">
                     <FaStar className="text-primary" />
@@ -224,7 +224,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="shadow-lg p-6 bg-bgSecondary max-w-md">
+              <div className="shadow-lg p-6 bg-slate-800 rounded-lg max-w-md">
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-2">
                     <FaStar className="text-primary" />
@@ -240,7 +240,7 @@ export default function Home() {
                   <p className="mt-4 font-semibold">- CEO, Startup ABC</p>
                 </div>
               </div>
-              <div className="shadow-lg p-6 bg-bgSecondary max-w-md">
+              <div className="shadow-lg p-6 bg-slate-800 rounded-lg max-w-md">
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-2">
                     <FaStar className="text-primary" />
