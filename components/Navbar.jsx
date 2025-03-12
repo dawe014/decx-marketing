@@ -1,10 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import Button from './Button' // Ensure this is correctly imported
-import { MdClose, MdMenu } from 'react-icons/md'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import Button from "./Button";
+import { MdClose, MdMenu } from "react-icons/md";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -24,13 +25,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className='w-screen shadow-md z-50 bg-background fixed top-0 left-0 right-0'>
-        <div className='mx-auto max-w-7xl px-6 lg:px-8 z-50'>
-          <div className='relative flex h-20 items-center justify-between'>
-            <div className='flex flex-1 items-center justify-between md:items-stretch md:justify-between'>
-              {/* Logo */}
-              <Link className='flex flex-shrink-0 items-start' href='/'>
-                <p className='text-textPrimary text-2xl font-bold ml-2'>DECx</p>
+      <nav className="w-screen shadow-md z-50 bg-background fixed top-0 left-0 right-0">
+        <div className="mx-auto max-w-7xl px-6  lg:px-8 z-50">
+          <div className=" relative flex h-20 items-center justify-between">
+            <div className="flex flex-1  items-center justify-between md:items-stretch md:justify-between">
+              {/* <!-- Logo --> */}
+              <Link className="flex flex-shrink-0 items-start" href="/">
+                <div>
+                  <Image
+                    src="/logo.jpg"
+                    alt="Logo"
+                    width={500}
+                    height={500}
+                    className="w-24 h-12"
+                  />
+                </div>
               </Link>
 
               {/* Desktop Menu Hidden below md screens */}
