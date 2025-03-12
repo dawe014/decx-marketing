@@ -37,13 +37,20 @@ export default function JobsPage() {
     language: '',
     niche: '',
   })
+  const [searchTerm, setSearchTerm] = useState('') // State for search term
 
+  // Filter jobs based on filters and search term
   const filteredJobs = jobs.filter((job) => {
-    return (
+    const matchesFilters =
       (filters.price === '' || job.price <= filters.price) &&
       (filters.language === '' || job.language === filters.language) &&
       (filters.niche === '' || job.niche === filters.niche)
-    )
+
+    const matchesSearch =
+      job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchTerm.toLowerCase())
+
+    return matchesFilters && matchesSearch
   })
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -54,21 +61,36 @@ export default function JobsPage() {
     })
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
   return (
-    <div className='min-h-screen bg-bgService p-6'>
-      <h1 className='text-3xl font-bold text-center mb-20'>Influencer Jobs</h1>
+    <div className='min-h-screen bg-slate-800 p-6'>
+      <h1 className='text-3xl font-bold text-center mb-12'>Influencer Jobs</h1>
+
+      {/* Search Input */}
+      <div className='mb-12 flex justify-center'>
+        <input
+          type='text'
+          placeholder='Search by company or description...'
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className='p-2 border rounded text-slate-800 w-full max-w-md'
+        />
+      </div>
 
       {/* Filters Section */}
-      <div className='mb-20 flex space-x-4 justify-center '>
+      <div className='mb-20 flex space-x-4 justify-center'>
         <select
-          name='price'
+          name='niche'
           onChange={handleFilterChange}
           className='p-2 border rounded text-slate-800'
         >
-          <option value=''>Filter by Price</option>
-          <option value='500'>$500</option>
-          <option value='600'>$600</option>
-          <option value='800'>$800</option>
+          <option value=''>Filter by Niche</option>
+          <option value='Technology'>Technology</option>
+          <option value='Fashion'>Fashion</option>
+          <option value='Health & Fitness'>Health & Fitness</option>
         </select>
         <select
           name='language'
@@ -80,14 +102,14 @@ export default function JobsPage() {
           <option value='French'>French</option>
         </select>
         <select
-          name='niche'
+          name='price'
           onChange={handleFilterChange}
           className='p-2 border rounded text-slate-800'
         >
-          <option value=''>Filter by Niche</option>
-          <option value='Technology'>Technology</option>
-          <option value='Fashion'>Fashion</option>
-          <option value='Health & Fitness'>Health & Fitness</option>
+          <option value=''>Filter by Price</option>
+          <option value='500'>$500</option>
+          <option value='600'>$600</option>
+          <option value='800'>$800</option>
         </select>
       </div>
 
