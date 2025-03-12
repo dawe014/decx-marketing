@@ -11,7 +11,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => {
-    alert("helo world");
     setIsModalOpen(true);
   };
   const closeModal = () => setIsModalOpen(false);
