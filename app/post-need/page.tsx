@@ -46,7 +46,7 @@ export default function JobsPage() {
     )
   })
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target
     setFilters({
       ...filters,
