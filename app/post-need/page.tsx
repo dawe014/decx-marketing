@@ -139,7 +139,7 @@ export default function JobsPage() {
       {/* Job Cards Section */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
         {filteredJobs.map((job) => (
-          <div key={job.id} className='bg-card2bg p-6 rounded-lg shadow-md'>
+          <div key={job.id} className='bg-borderColor p-6 rounded-lg shadow-md'>
             <h2 className='text-xl font-bold mb-2'>{job.companyName}</h2>
             <p className='text-blue-100 mb-4'>{job.description}</p>
             <div className='flex space-x-4 text-sm text-textPrimary mb-4'>
