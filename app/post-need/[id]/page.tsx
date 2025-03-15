@@ -57,65 +57,75 @@ export default function JobDetailsPage() {
   }
 
   return (
-    <div className='min-h-screen bg-slate-800 p-6 text-white'>
-      <h1 className='text-3xl font-bold text-center mb-8'>Job Details</h1>
-      {/* Job Details Section */}
-      <div className='bg-borderColor p-6 rounded-lg shadow-md mb-8'>
-        <h2 className='text-2xl font-bold mb-4'>{job.companyName}</h2>
-        <p className='text-blue-100 mb-4'>{job.description}</p>
+    <div className='bg-slate-800'>
+      <h1 className='text-3xl font-bold text-center  p-8'>Job Details</h1>
+      <div className='min-h-screen bg-slate-800 p-6 text-white'>
+        {/* Job Details Section */}
+        <div className='bg-borderColor p-6 rounded-lg shadow-md mb-8'>
+          <h2 className='text-2xl font-bold mb-4'>{job.companyName}</h2>
+          <p className='text-blue-100 mb-4'>{job.description}</p>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
-          <div>
-            <p className='text-sm text-textPrimary'>Language: {job.language}</p>
-            <p className='text-sm text-textPrimary'>Niche: {job.niche}</p>
-            <p className='text-sm text-textPrimary'>Location: {job.location}</p>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+            <div>
+              <p className='text-sm text-textPrimary'>
+                Language: {job.language}
+              </p>
+              <p className='text-sm text-textPrimary'>Niche: {job.niche}</p>
+              <p className='text-sm text-textPrimary'>
+                Location: {job.location}
+              </p>
+            </div>
+            <div>
+              <p className='text-sm text-textPrimary'>Price: {job.price}</p>
+              <p className='text-sm text-textPrimary'>
+                Deadline: {job.deadline}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className='text-sm text-textPrimary'>Price: {job.price}</p>
-            <p className='text-sm text-textPrimary'>Deadline: {job.deadline}</p>
-          </div>
-        </div>
 
-        <div className='mb-6'>
-          <h3 className='text-lg font-semibold mb-2'>Requirements</h3>
-          <p className='text-sm text-textPrimary'>{job.requirements}</p>
-        </div>
-
-        <div className='mb-6'>
-          <h3 className='text-lg font-semibold mb-2'>Deliverables</h3>
-          <p className='text-sm text-textPrimary'>{job.deliverables}</p>
-        </div>
-      </div>
-      {/* Proposal Form Section */}
-      <div className='bg-card2bg p-6 rounded-lg shadow-md'>
-        <h2 className='text-2xl font-bold mb-4'>Submit Your Proposal</h2>
-        <form onSubmit={handleSubmit}>
           <div className='mb-6'>
-            <label
-              htmlFor='proposal'
-              className='block text-sm font-medium mb-2'
-            >
-              Proposal
-            </label>
-            <textarea
-              id='proposal'
-              value={proposal}
-              onChange={(e) => setProposal(e.target.value)}
-              className='w-full p-2 border rounded text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500'
-              rows={6}
-              placeholder='Explain why you are the best fit for this job...'
-              required
-            />
+            <h3 className='text-lg font-semibold mb-2'>Requirements</h3>
+            <p className='text-sm text-textPrimary'>{job.requirements}</p>
           </div>
 
-          <button
-            type='submit'
-            disabled={isSubmitting}
-            className='bg-overlay text-white px-4 py-2 rounded hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed'
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
-          </button>
-        </form>
+          <div className='mb-6'>
+            <h3 className='text-lg font-semibold mb-2'>Deliverables</h3>
+            <p className='text-sm text-textPrimary'>{job.deliverables}</p>
+          </div>
+        </div>
+        {/* Proposal Form Section */}
+        <div className='bg-borderColor p-6 rounded-lg  shadow-md'>
+          <h2 className='text-2xl font-bold text-primary mb-4'>
+            Submit Your Proposal
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div className='mb-6'>
+              <label
+                htmlFor='proposal'
+                className='block text-sm font-medium mb-2'
+              >
+                Proposal
+              </label>
+              <textarea
+                id='proposal'
+                value={proposal}
+                onChange={(e) => setProposal(e.target.value)}
+                className='w-full p-2 border rounded text-white bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary'
+                rows={6}
+                placeholder='Explain why you are the best fit for this job...'
+                required
+              />
+            </div>
+
+            <button
+              type='submit'
+              disabled={isSubmitting}
+              className='bg-bgService text-primary px-4 py-2 rounded hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed'
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )
