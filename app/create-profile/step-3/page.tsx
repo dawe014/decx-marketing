@@ -4,75 +4,94 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProfileLayout from "@/components/ProfileLayout";
 
-interface SocialMediaLink {
-  platform: string;
-  url: string;
+interface Service {
+  name: string;
+  fee: string;
 }
 
 export default function StepThree() {
   const router = useRouter();
+  const [services, setServices] = useState<Service[]>([{ name: "", fee: "" }]);
 
-  // State to manage social media links
-  const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>([
-    { platform: "Instagram", url: "" },
-    { platform: "YouTube", url: "" },
-    { platform: "TikTok", url: "" },
-  ]);
-
-  // Handle adding a new social media link
-  const addSocialMediaLink = () => {
-    setSocialMediaLinks([...socialMediaLinks, { platform: "Other", url: "" }]);
+  const addService = () => {
+    setServices([...services, { name: "", fee: "" }]);
   };
 
-  // Handle input changes for a specific field
+  const removeService = (index: number) => {
+    setServices(services.filter((_, i) => i !== index));
+  };
+
   const handleInputChange = (
     index: number,
-    field: keyof SocialMediaLink,
+    field: keyof Service,
     value: string
   ) => {
-    const updatedLinks = [...socialMediaLinks];
-    updatedLinks[index][field] = value;
-    setSocialMediaLinks(updatedLinks);
+    const updatedServices = [...services];
+    updatedServices[index][field] = value;
+    setServices(updatedServices);
   };
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(socialMediaLinks); // Log the links (this would typically be sent to a server)
+    console.log(services);
     router.push("/create-profile/step-4");
   };
 
   return (
     <ProfileLayout step={3}>
-      <h2 className="text-xl font-bold mb-4">Social Media Links</h2>
-      <form onSubmit={handleSubmit}>
-        {socialMediaLinks.map((link, index) => (
-          <div key={index} className="mb-4">
-            <label className="block mb-2 font-medium text-gray-700">
-              {link.platform} URL
-            </label>
-            <input
-              type="url"
-              placeholder={`Enter ${link.platform} URL`}
-              value={link.url}
-              onChange={(e) => handleInputChange(index, "url", e.target.value)}
-              className="border p-2 w-full outline-primary"
-              required
-            />
+      <h2 className="text-2xl font-bold mb-6 text-center">Services</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-lg mx-auto p-6  shadow-md rounded-lg space-y-4 flex flex-col"
+      >
+        {services.map((service, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-3 border p-3 rounded-lg  text-black bg-gray-50"
+          >
+            <div className="flex flex-col gap-2 md:flex-row md:gap-3">
+              <input
+                type="text"
+                placeholder="Service Name (e.g., Instagram Post)"
+                value={service.name}
+                onChange={(e) =>
+                  handleInputChange(index, "name", e.target.value)
+                }
+                className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                type="number"
+                placeholder="Fee (e.g., 100)"
+                value={service.fee}
+                onChange={(e) =>
+                  handleInputChange(index, "fee", e.target.value)
+                }
+                className="border p-2 w-32 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <button
+              onClick={() => removeService(index)}
+              type="button"
+              className="text-red-500"
+            >
+              ❌
+            </button>
           </div>
         ))}
 
         <button
           type="button"
-          onClick={addSocialMediaLink}
-          className="bg-gray-200 text-gray-700 py-2 px-4 rounded mb-4"
+          onClick={addService}
+          className="bg-green-600 text-white py-2 md:w-max px-4 rounded-lg w-full hover:bg-green-700 transition"
         >
-          Add Another Social Media Link
+          Add Another Service
         </button>
 
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded"
+          className="bg-blue-600 text-white py-3 px-6 md:w-max rounded-lg w-full hover:bg-blue-700 transition"
         >
           Next
         </button>
