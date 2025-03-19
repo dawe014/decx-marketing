@@ -1,13 +1,6 @@
 import React from "react";
 
-const steps = [
-  "Basic Info",
-  "About",
-  "Socials",
-  "Services",
-  "Portfolio",
-  "Contact",
-];
+const steps = ["Basic Info", "About", "Socials", "Services", "Portfolio"];
 
 interface StepProgressProps {
   currentStep: number;

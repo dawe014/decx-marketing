@@ -57,12 +57,12 @@ export default function StepTwo() {
         onSubmit={handleSubmit}
         className="space-y-4 max-w-lg mx-auto p-6 shadow-md rounded-lg"
       >
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1">
             Social Media Platform
           </label>
           <select
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 text-black outline-none"
+            className=" p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 text-white outline-none bg-slate-700"
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
           >
@@ -76,11 +76,11 @@ export default function StepTwo() {
             <option value="Other">Other</option>
           </select>
         </div>
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1">Profile Link</label>
           <input
             type="url"
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 text-black outline-none"
+            className=" p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 text-white outline-none bg-slate-700"
             value={link}
             onChange={(e) => setLink(e.target.value)}
             required
@@ -89,7 +89,7 @@ export default function StepTwo() {
         <button
           type="button"
           onClick={addSocialLink}
-          className="bg-green-600 text-white py-2 px-4 rounded-lg w-full hover:bg-green-700 transition"
+          className="bg-green-600 text-white py-2 px-4 rounded-lg w-full md:w-max hover:bg-green-700 transition"
         >
           Add Social Link
         </button>

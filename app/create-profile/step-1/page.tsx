@@ -30,32 +30,32 @@ export default function StepOne() {
         onSubmit={handleSubmit}
         className="space-y-4 max-w-lg mx-auto p-6 text-black  shadow-md rounded-lg"
       >
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1 text-white">
             Full Name
           </label>
           <input
             type="text"
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             required
           />
         </div>
 
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1 text-white">City</label>
           <input
             type="text"
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             value={location.city}
             onChange={(e) => setLocation({ ...location, city: e.target.value })}
             required
           />
         </div>
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1 text-white">Country</label>
           <input
             type="text"
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             value={location.country}
             onChange={(e) =>
               setLocation({ ...location, country: e.target.value })
@@ -63,33 +63,36 @@ export default function StepOne() {
             required
           />
         </div>
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1 text-white">
             Phone Number
           </label>
-          <PhoneInput
-            country={"us"}
-            value={phone}
-            onChange={(value) => setPhone(value)}
-            inputClass="border w-full p-3 rounded-lg  focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="">
+            <PhoneInput
+              country={"et"}
+              value={phone}
+              onChange={(value) => setPhone(value)}
+              inputClass="custom-phone-input bg-slate-700 w-full p-3 rounded-lg outline-none  focus:ring-2 focus:ring-blue-500"
+              buttonClass="custom-phone-inpust"
+            />
+          </div>
         </div>
-        <div>
+        <div className="flex flex-col md:flex-row gap-3 ">
           <label className="block font-semibold mb-1 text-white">Email</label>
           <input
             type="email"
-            className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div>
+        <div className="">
           <label className="block font-semibold mb-1 text-white">
             About You
           </label>
           <textarea
-            className="border p-3 w-full h-32 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-white bg-slate-700 p-3 flex-1 w-full h-40 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             required

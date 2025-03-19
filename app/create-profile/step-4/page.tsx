@@ -47,18 +47,21 @@ export default function StepFour() {
         className="space-y-4 max-w-lg mx-auto p-6 text-black shadow-md rounded-lg flex flex-col"
       >
         {portfolio.map((item, index) => (
-          <div key={index} className="border p-3 rounded-lg bg-gray-100 mb-4">
+          <div
+            key={index}
+            className="border border-secondary p-3 rounded-lg bg-background mb-4"
+          >
             <input
               type="file"
               accept="image/*,video/*"
-              className="border p-2 w-full rounded-lg outline-none"
+              className=" p-2 w-full rounded-lg text-white outline-none bg-slate-700"
               onChange={(e) =>
                 handleFileChange(index, e.target.files?.[0] || null)
               }
             />
             <textarea
               placeholder="Description of your work"
-              className="border p-2 w-full rounded-lg mt-2 outline-none focus:ring-2 focus:ring-blue-500"
+              className=" p-2 w-full rounded-lg mt-2 text-white outline-none bg-slate-700 focus:ring-2 focus:ring-blue-500"
               value={item.description}
               onChange={(e) => handleDescriptionChange(index, e.target.value)}
               required

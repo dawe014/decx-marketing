@@ -47,9 +47,9 @@ export default function StepThree() {
         {services.map((service, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 border p-3 rounded-lg  text-black bg-gray-50"
+            className="flex items-center gap-3 border border-secondary p-3 rounded-lg  text-black bg-background  "
           >
-            <div className="flex flex-col gap-2 md:flex-row md:gap-3">
+            <div className="flex flex-col gap-2 md:flex-row md:gap-3 w-full">
               <input
                 type="text"
                 placeholder="Service Name (e.g., Instagram Post)"
@@ -57,7 +57,7 @@ export default function StepThree() {
                 onChange={(e) =>
                   handleInputChange(index, "name", e.target.value)
                 }
-                className="border p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="text-white outline-none bg-slate-700 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               />
               <input
@@ -67,7 +67,7 @@ export default function StepThree() {
                 onChange={(e) =>
                   handleInputChange(index, "fee", e.target.value)
                 }
-                className="border p-2 w-32 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="text-white outline-none bg-slate-700 p-2 w-36 rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
