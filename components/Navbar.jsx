@@ -41,10 +41,10 @@ export default function Navbar() {
                   />
                 </div>
               </Link>
+              {/* <!-- Desktop Menu Hidden below md screens --> */}
+              <div className="hidden md:ml-6  md:text-sm items-center md:flex">
+                <div className="flex space-x-2 items-center">
 
-              {/* Desktop Menu Hidden below md screens */}
-              <div className='hidden md:ml-6 md:block md:text-sm'>
-                <div className='flex space-x-2'>
                   <Link
                     href='/'
                     className={`${
@@ -246,22 +246,24 @@ export default function Navbar() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-          <div className='bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative'>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-bgSecondary rounded-lg shadow-lg w-full max-w-md p-6 relative">
             {/* Modal Header */}
-            <div className='flex justify-between items-center'>
-              <h2 className='text-xl font-bold text-gray-800'>Join Us</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white">Join Us</h2>
               <button
                 onClick={closeModal}
-                className='text-gray-500 hover:text-gray-700 focus:outline-none'
+                className="text-gray-200 hover:text-primary text-2xl focus:outline-none"
+
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Content */}
-            <p className='mt-2 text-sm text-gray-600'>
-              Choose how you'd like to join our platform.
+            <p className="mt-2 text-sm text-gray-300">
+              Choose how youd like to join our platform.
+
             </p>
 
             <div className='flex gap-4 mt-6'>
