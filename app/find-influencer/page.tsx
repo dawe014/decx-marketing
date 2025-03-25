@@ -269,7 +269,7 @@ const FindInfluencer = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button
+            <button title="search"
               className="absolute right-0 rounded-r-full w-10   top-0 bottom-0 p-2 text-white bg-primary"
               onClick={handleSearch}
             >
@@ -291,7 +291,7 @@ const FindInfluencer = () => {
               showFilters ? "block" : "hidden"
             } md:flex`}
           >
-            <select
+            <select title="category"
               className="p-2  rounded-md w-full sm:w-auto bg-slate-700 outline-none"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -305,7 +305,7 @@ const FindInfluencer = () => {
                 </option>
               ))}
             </select>
-            <select
+            <select title="location"
               className="p-2  rounded-md w-full sm:w-auto bg-slate-700 outline-none"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -319,7 +319,7 @@ const FindInfluencer = () => {
                 )
               )}
             </select>
-            <select
+            <select title="language"
               className="p-2  rounded-md w-full sm:w-auto bg-slate-700 outline-none"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
