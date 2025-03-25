@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import ProfileLayout from "@/components/ProfileLayout";
 import { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 interface Location {
   city: string;
@@ -13,7 +13,6 @@ interface Location {
 
 export default function StepOne() {
   const router = useRouter();
-  const [dob, setDob] = useState<Date | null>(null);
   const [location, setLocation] = useState<Location>({ city: "", country: "" });
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -26,71 +25,82 @@ export default function StepOne() {
 
   return (
     <ProfileLayout step={1}>
-      <h2 className="text-xl font-bold mb-4">Basic Info</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Full Name"
-          className="border p-2 w-full mb-4 outline-primary"
-          required
-        />
-        <div className="mb-4">
-          <label className="block mb-1">Date of Birth</label>
-          <DatePicker
-            selected={dob}
-            onChange={(date) => setDob(date)}
-            className="border p-2 w-full outline-primary"
-            placeholderText="Select Date"
+      <h2 className="text-2xl font-bold mb-6 text-center">Basic Info</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 max-w-lg mx-auto p-6 text-black  shadow-md rounded-lg"
+      >
+        <div className="flex flex-col md:flex-row gap-3 ">
+          <label className="block font-semibold mb-1 text-white">
+            Full Name
+          </label>
+          <input
+            type="text"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             required
-            showYearDropdown
-            yearDropdownItemNumber={15} // Show 15 years in dropdown
-            dropdownMode="select" // Use dropdown for navigation
           />
         </div>
-        <input
-          type="text"
-          placeholder="City"
-          className="border p-2 w-full mb-4 outline-primary"
-          value={location.city}
-          onChange={(e) => setLocation({ ...location, city: e.target.value })}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Country"
-          className="border p-2 w-full mb-4 outline-primary"
-          value={location.country}
-          onChange={(e) =>
-            setLocation({ ...location, country: e.target.value })
-          }
-          required
-        />
-        <input
-          type="tel"
-          placeholder="Phone Number"
-          className="border p-2 w-full mb-4 outline-primary"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 w-full mb-4 outline-primary"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Bio"
-          className="border p-2 w-full mb-4 outline-primary"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          required
-        />
+
+        <div className="flex flex-col md:flex-row gap-3 ">
+          <label className="block font-semibold mb-1 text-white">City</label>
+          <input
+            type="text"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            value={location.city}
+            onChange={(e) => setLocation({ ...location, city: e.target.value })}
+            required
+          />
+        </div>
+        <div className="flex flex-col md:flex-row gap-3 ">
+          <label className="block font-semibold mb-1 text-white">Country</label>
+          <input
+            type="text"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            value={location.country}
+            onChange={(e) =>
+              setLocation({ ...location, country: e.target.value })
+            }
+            required
+          />
+        </div>
+        <div className="flex flex-col md:flex-row gap-3 ">
+          <label className="block font-semibold mb-1 text-white">
+            Phone Number
+          </label>
+          <div className="">
+            <PhoneInput
+              country={"et"}
+              value={phone}
+              onChange={(value) => setPhone(value)}
+              inputClass="custom-phone-input bg-slate-700 w-full p-3 rounded-lg outline-none  focus:ring-2 focus:ring-blue-500"
+              buttonClass="custom-phone-inpust"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row gap-3 ">
+          <label className="block font-semibold mb-1 text-white">Email</label>
+          <input
+            type="email"
+            className="text-white bg-slate-700 p-3 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="">
+          <label className="block font-semibold mb-1 text-white">
+            About You
+          </label>
+          <textarea
+            className="text-white bg-slate-700 p-3 flex-1 w-full h-40 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            required
+          />
+        </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded"
+          className="bg-blue-600 text-white py-3 px-6 rounded-lg w-full md:w-max  hover:bg-blue-700 transition"
         >
           Next
         </button>

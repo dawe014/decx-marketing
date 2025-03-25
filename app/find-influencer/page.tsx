@@ -341,7 +341,7 @@ const FindInfluencer = () => {
             filteredInfluencers.map((influencer) => (
               <div
                 key={influencer.id}
-                className="shadow-md p-6 bg-background text-center rounded-lg border border-primary hover:shadow hover:shadow-primary"
+                className="shadow-md p-6 bg-bgSecondary text-center rounded-lg border border-primary hover:shadow hover:shadow-primary"
               >
                 <Image
                   width={500}

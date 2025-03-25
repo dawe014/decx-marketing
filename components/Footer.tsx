@@ -1,16 +1,25 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-light text-textPrimary py-10 px-6 border-t border-slate-800">
+    <footer className="bg-background text-textPrimary py-10 px-6 border-t border-slate-800">
       <div className="max-w-7xl mx-auto ">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo & Description */}
           <div>
-            <h2 className="text-2xl font-bold">
-              <span className="text-primary">DECx</span>
-            </h2>
+            <Link className="flex flex-shrink-0 items-start" href="/">
+              <div>
+                <Image
+                  src="/logo.jpg"
+                  alt="Logo"
+                  width={500}
+                  height={500}
+                  className="w-24 h-12"
+                />
+              </div>
+            </Link>
             <p className="mt-3 text-greay-400">
               Connect with top influencers and grow your brand with ease.
             </p>
@@ -85,10 +94,23 @@ export default function Footer() {
         </div>
       </div>
       {/* Copyright */}
-      <div className=" text-center text-textPrimary text-sm mt-8 ">
+      <div className=" text-center text-textPrimary text-sm mt-8  flex justify-center items-center ">
         &copy; {new Date().getFullYear()}{" "}
-        <span className="text-primary">DECx</span> Marketing Agency. All rights
-        reserved.
+        <Link
+          className=" flex-shrink-0 items-center justify-center text-center inline "
+          href="/"
+        >
+          <div className="inline-flex ">
+            <Image
+              src="/logo.jpg"
+              alt="Logo"
+              width={500}
+              height={500}
+              className="w-14 h-8 inline-flex"
+            />
+          </div>
+        </Link>{" "}
+        Marketing Agency. All rights reserved.
       </div>
     </footer>
   );
