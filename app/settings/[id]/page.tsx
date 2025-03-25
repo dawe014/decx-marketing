@@ -2,15 +2,27 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiEye, FiEyeOff, FiMail, FiLock, FiArrowLeft } from 'react-icons/fi'
+import {
+  FiEye,
+  FiEyeOff,
+  FiMail,
+  FiLock,
+  FiUser,
+  FiPhone,
+  FiMapPin,
+  FiArrowLeft,
+} from 'react-icons/fi'
 
 export default function SettingsPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    location: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    newEmail: '',
   })
   const [showPassword, setShowPassword] = useState({
     current: false,
@@ -18,10 +30,13 @@ export default function SettingsPage() {
     confirm: false,
   })
   const [errors, setErrors] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    location: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    newEmail: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
@@ -36,33 +51,66 @@ export default function SettingsPage() {
   const validateForm = () => {
     let isValid = true
     const newErrors = {
+      name: '',
+      phone: '',
+      email: '',
+      location: '',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      newEmail: '',
     }
 
-    if (!formData.currentPassword) {
-      newErrors.currentPassword = 'Current password is required'
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
       isValid = false
     }
 
-    if (formData.newPassword && formData.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters'
+    // Phone validation (basic)
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+      isValid = false
+    } else if (!/^[\d\s+\-().]+$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number'
       isValid = false
     }
 
-    if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+      isValid = false
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
       isValid = false
     }
 
+    // Location validation
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required'
+      isValid = false
+    }
+
+    // Password validations (only if changing password)
     if (
-      formData.newEmail &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.newEmail)
+      formData.currentPassword ||
+      formData.newPassword ||
+      formData.confirmPassword
     ) {
-      newErrors.newEmail = 'Please enter a valid email address'
-      isValid = false
+      if (!formData.currentPassword) {
+        newErrors.currentPassword =
+          'Current password is required to make changes'
+        isValid = false
+      }
+
+      if (formData.newPassword && formData.newPassword.length < 8) {
+        newErrors.newPassword = 'Password must be at least 8 characters'
+        isValid = false
+      }
+
+      if (formData.newPassword !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match'
+        isValid = false
+      }
     }
 
     setErrors(newErrors)
@@ -93,16 +141,20 @@ export default function SettingsPage() {
     setSuccessMessage('')
 
     try {
-      // Replace with your actual API endpoint
       const response = await fetch('/api/user/settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentPassword: formData.currentPassword,
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          location: formData.location,
+          ...(formData.currentPassword && {
+            currentPassword: formData.currentPassword,
+          }),
           ...(formData.newPassword && { newPassword: formData.newPassword }),
-          ...(formData.newEmail && { newEmail: formData.newEmail }),
         }),
       })
 
@@ -112,21 +164,13 @@ export default function SettingsPage() {
         throw new Error(data.message || 'Failed to update settings')
       }
 
-      setSuccessMessage('Settings updated successfully!')
-      // Clear sensitive fields
+      setSuccessMessage('Profile updated successfully!')
       setFormData((prev) => ({
         ...prev,
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       }))
-
-      // If email was changed, suggest user to verify it
-      if (formData.newEmail) {
-        setSuccessMessage(
-          (prev) => prev + ' Please check your new email for verification.'
-        )
-      }
     } catch (error) {
       console.error('Update error:', error)
       setErrors((prev) => ({
@@ -161,6 +205,127 @@ export default function SettingsPage() {
         )}
 
         <form onSubmit={handleSubmit} className='space-y-6'>
+          {/* Personal Information Section */}
+          <div className='border-b border-slate-600 pb-6'>
+            <h2 className='text-lg font-medium text-blue-100 mb-4'>
+              Personal Information
+            </h2>
+
+            <div className='space-y-4'>
+              <div>
+                <label
+                  htmlFor='name'
+                  className='block text-sm font-medium text-blue-100 mb-1'
+                >
+                  Full Name
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                    <FiUser className='text-slate-400' />
+                  </div>
+                  <input
+                    id='name'
+                    name='name'
+                    type='text'
+                    placeholder='Enter your full name'
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 py-2 bg-slate-600 text-white ${
+                      errors.name ? 'border-red-500' : 'border-slate-500'
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  />
+                </div>
+                {errors.name && (
+                  <p className='mt-1 text-sm text-red-400'>{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor='phone'
+                  className='block text-sm font-medium text-blue-100 mb-1'
+                >
+                  Phone Number
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                    <FiPhone className='text-slate-400' />
+                  </div>
+                  <input
+                    id='phone'
+                    name='phone'
+                    type='tel'
+                    placeholder='Enter your phone number'
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 py-2 bg-slate-600 text-white ${
+                      errors.phone ? 'border-red-500' : 'border-slate-500'
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  />
+                </div>
+                {errors.phone && (
+                  <p className='mt-1 text-sm text-red-400'>{errors.phone}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor='email'
+                  className='block text-sm font-medium text-blue-100 mb-1'
+                >
+                  Email Address
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                    <FiMail className='text-slate-400' />
+                  </div>
+                  <input
+                    id='email'
+                    name='email'
+                    type='email'
+                    placeholder='Enter your email address'
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 py-2 bg-slate-600 text-white ${
+                      errors.email ? 'border-red-500' : 'border-slate-500'
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className='mt-1 text-sm text-red-400'>{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor='location'
+                  className='block text-sm font-medium text-blue-100 mb-1'
+                >
+                  Location
+                </label>
+                <div className='relative'>
+                  <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                    <FiMapPin className='text-slate-400' />
+                  </div>
+                  <input
+                    id='location'
+                    name='location'
+                    type='text'
+                    placeholder='Enter your location'
+                    value={formData.location}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 py-2 bg-slate-600 text-white ${
+                      errors.location ? 'border-red-500' : 'border-slate-500'
+                    } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  />
+                </div>
+                {errors.location && (
+                  <p className='mt-1 text-sm text-red-400'>{errors.location}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Password Change Section */}
           <div className='border-b border-slate-600 pb-6'>
             <h2 className='text-lg font-medium text-blue-100 mb-4'>
@@ -183,6 +348,7 @@ export default function SettingsPage() {
                     id='currentPassword'
                     name='currentPassword'
                     type={showPassword.current ? 'text' : 'password'}
+                    placeholder='Enter your current password'
                     autoComplete='current-password'
                     value={formData.currentPassword}
                     onChange={handleChange}
@@ -226,6 +392,7 @@ export default function SettingsPage() {
                     id='newPassword'
                     name='newPassword'
                     type={showPassword.new ? 'text' : 'password'}
+                    placeholder='Enter your new password'
                     autoComplete='new-password'
                     value={formData.newPassword}
                     onChange={handleChange}
@@ -267,6 +434,7 @@ export default function SettingsPage() {
                     id='confirmPassword'
                     name='confirmPassword'
                     type={showPassword.confirm ? 'text' : 'password'}
+                    placeholder='Confirm your new password'
                     autoComplete='new-password'
                     value={formData.confirmPassword}
                     onChange={handleChange}
@@ -297,54 +465,19 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Email Change Section */}
-          <div className='border-b border-slate-600 pb-6'>
-            <h2 className='text-lg font-medium text-blue-100 mb-4'>
-              Change Email Address
-            </h2>
-
-            <div>
-              <label
-                htmlFor='newEmail'
-                className='block text-sm font-medium text-blue-100 mb-1'
-              >
-                New Email Address
-              </label>
-              <div className='relative'>
-                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <FiMail className='text-slate-400' />
-                </div>
-                <input
-                  id='newEmail'
-                  name='newEmail'
-                  type='email'
-                  autoComplete='email'
-                  value={formData.newEmail}
-                  onChange={handleChange}
-                  className={`block w-full pl-10 py-2 bg-slate-600 text-white ${
-                    errors.newEmail ? 'border-red-500' : 'border-slate-500'
-                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-                />
-              </div>
-              {errors.newEmail && (
-                <p className='mt-1 text-sm text-red-400'>{errors.newEmail}</p>
-              )}
-            </div>
-          </div>
-
           {/* Form Actions */}
           <div className='flex justify-end space-x-3'>
             <button
               type='button'
               onClick={() => router.back()}
-              className='px-4 py-2 border border-slate-500 rounded-md shadow-sm text-sm font-medium text-blue-100 bg-slate-700 hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 '
+              className='px-4 py-2 border border-slate-500 rounded-md shadow-sm text-sm font-medium text-blue-100 bg-slate-700 hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
             >
               Cancel
             </button>
             <button
               type='submit'
               disabled={isSubmitting}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>
