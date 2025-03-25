@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaFacebook, FaTwitter, FaInstagram, FaSearch } from "react-icons/fa";
 import Image from "next/image";
+import Link from "next/link";
 
 const influencers = [
   {
@@ -370,27 +371,27 @@ const FindInfluencer = () => {
                   Rating: ⭐ {influencer.rating}
                 </p>
                 <div className="flex justify-evenly items-center gap-4 mt-2">
-                  <a
+                  <Link
                     href={influencer.socials.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <FaFacebook className="text-blue-600 text-xl" />
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href={influencer.socials.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <FaTwitter className="text-blue-400 text-xl" />
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href={influencer.socials.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <FaInstagram className="text-pink-500 text-xl" />
-                  </a>
+                  </Link>
                 </div>
                 <button
                   className="mt-4 p-2 bg-secondary hover:bg-primary transition-all duration-300  text-white rounded-md"
