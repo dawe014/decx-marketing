@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export default function About() {
   return (
-    <div className='bg-gray-50'>
+    <div className='bg-overlay'>
       {/* Hero Section */}
       <div className='relative h-96'>
         <Image
@@ -32,10 +32,10 @@ export default function About() {
             />
           </div>
           <div className='flex-1'>
-            <h2 className='text-3xl font-bold text-gray-800 mb-4'>
+            <h2 className='text-3xl font-bold text-blue-100 mb-4'>
               Our Mission
             </h2>
-            <p className='text-gray-600 leading-relaxed'>
+            <p className='text-blue-100 leading-relaxed'>
               Our mission is to provide a comprehensive database of famous
               individuals with 5,000 or more subscribers on social media. We aim
               to make it easier for businesses to find the right influencers for
@@ -55,8 +55,8 @@ export default function About() {
             />
           </div>
           <div className='flex-1'>
-            <h2 className='text-3xl font-bold text-gray-800 mb-4'>Features</h2>
-            <ul className='list-disc list-inside text-gray-600 space-y-2'>
+            <h2 className='text-3xl font-bold text-blue-100 mb-4'>Features</h2>
+            <ul className='list-disc list-inside text-blue-100 space-y-2'>
               <li>
                 View detailed profiles of famous individuals, including their
                 social media followers and engagement metrics.
@@ -83,10 +83,10 @@ export default function About() {
             />
           </div>
           <div className='flex-1'>
-            <h2 className='text-3xl font-bold text-gray-800 mb-4'>
+            <h2 className='text-3xl font-bold text-blue-100 mb-4'>
               Why Choose Us?
             </h2>
-            <p className='text-gray-600 leading-relaxed'>
+            <p className='text-blue-100 leading-relaxed'>
               We provide a user-friendly interface, accurate data, and a secure
               platform for both influencers and advertisers. Our goal is to
               bridge the gap between talent and opportunity.
@@ -96,7 +96,7 @@ export default function About() {
       </div>
 
       {/* Call to Action Section */}
-      <div className='bg-blue-600 py-12'>
+      <div className='bg-bgService py-12'>
         <div className='max-w-4xl mx-auto px-6 text-center'>
           <h2 className='text-3xl font-bold text-white mb-4'>
             Ready to Get Started?
@@ -105,7 +105,7 @@ export default function About() {
             Join our platform today and connect with the best influencers or
             advertise your brand effectively.
           </p>
-          <button className='bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg hover:bg-blue-50 transition duration-300'>
+          <button className='bg-white text-bgService font-semibold px-6 py-3 rounded-lg hover:bg-blue-50 transition duration-300'>
             Sign Up Now
           </button>
         </div>
