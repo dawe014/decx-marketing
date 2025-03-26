@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { JSX, useState } from "react";
+import { useState } from "react";
 import {
   FaCheck,
   FaLink,
@@ -11,89 +11,47 @@ import { IoSettingsSharp } from "react-icons/io5";
 import Modal from "./Modal";
 import Link from "next/link";
 
-interface SocialMediaLinkProps {
-  icon: JSX.Element;
-  platform: string;
-  link: string;
-}
-
-interface ServiceItemProps {
-  name: string;
-  price: number;
-}
-
-interface PortfolioItemProps {
-  src: string;
-  alt: string;
-  title: string;
-}
-
-interface Review {
-  brand: string;
-  comment: string;
-}
-
-interface Service {
-  name: string;
-  price: number;
-}
-const socilaLinks=[
+const socialLinks = [
   {
-    "icon": "FaLink",
-    "platform": "Instagram",
-    "link": "#"
+    icon: "FaLink",
+    platform: "Instagram",
+    link: "#",
   },
   {
-    "icon": "FaLink",
-    "platform": "YouTube",
-    "link": "#"
+    icon: "FaLink",
+    platform: "YouTube",
+    link: "#",
   },
   {
-    "icon": "FaLink",
-    "platform": "Facebook",
-    "link": "#"
+    icon: "FaLink",
+    platform: "Facebook",
+    link: "#",
   },
   {
-    "icon": "FaLink",
-    "platform": "Twitter",
-    "link": "#"
-  }
-]
+    icon: "FaLink",
+    platform: "Twitter",
+    link: "#",
+  },
+];
+
 export default function InfluencerProfile() {
-  const [modalType, setModalType] = useState<"edit" | "add" | null>(null);
-  const [modalSection, setModalSection] = useState<
-    | "Languages"
-    | "Services"
-    | "About"
-    | "Portfolio"
-    | "Niches"
-    | "Social media"
-    | null
-  >(null);
-  const [editData, setEditData] = useState<any>(null);
+  const [modalType, setModalType] = useState(null);
+  const [modalSection, setModalSection] = useState(null);
+  const [editData, setEditData] = useState(null);
 
-  const openModal = (
-    type: "edit" | "add",
-    section:
-      | "Languages"
-      | "Services"
-      | "About"
-      | "Portfolio"
-      | "Niches"
-      | "Social media",
-    data?: any
-  ) => {
+  const openModal = (type, section, data) => {
     setModalType(type);
     setModalSection(section);
     if (type === "edit" && data) setEditData(data);
   };
+
   return (
     <section className="bg-slate-800">
-      <div className="mx-auto max-w-7xl px-6 py-8 md:py-12 lg:px-8 ">
+      <div className="mx-auto max-w-7xl px-6 py-8 md:py-12 lg:px-8">
         <div className="bg-slate-900 shadow-md rounded-2xl">
           {/* Profile Header */}
           <div className="flex flex-col md:flex-row justify-between items-center p-6 gap-6">
-            <div className=" flex items-center gap-6">
+            <div className="flex items-center gap-6">
               <Image
                 width={500}
                 height={500}
@@ -109,12 +67,12 @@ export default function InfluencerProfile() {
                 </p>
               </div>
             </div>
-            <div className=" ml-auto  ">
+            <div className="ml-auto">
               <Link href='/settings/1'>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-xl flex items-center justify-center hover:bg-blue-700 ">
-                <IoSettingsSharp className="inline mr-2" />
-                Settings
-              </button>
+                <button className="bg-blue-600 text-white px-6 py-2 rounded-xl flex items-center justify-center hover:bg-blue-700">
+                  <IoSettingsSharp className="inline mr-2" />
+                  Settings
+                </button>
               </Link>
             </div>
           </div>
@@ -122,9 +80,7 @@ export default function InfluencerProfile() {
           {/* Bio */}
           <div className="p-6 mt-6">
             <div className="flex items-start justify-between">
-              <h3 className="text-xl font-semibold mb-2 text-secondary">
-                About
-              </h3>
+              <h3 className="text-xl font-semibold mb-2 text-secondary">About</h3>
               <div
                 className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer"
                 onClick={() =>
@@ -145,6 +101,7 @@ export default function InfluencerProfile() {
             </p>
           </div>
         </div>
+
         {/* Modals */}
         {modalType && modalSection && (
           <Modal
@@ -157,12 +114,11 @@ export default function InfluencerProfile() {
             }}
           />
         )}
+
         {/* Languages and Niches */}
-        <div className="bg-slate-900 rounded-2xl p-6 mt-6 ">
-          <div className="flex items-start justify-between ">
-            <h3 className="text-xl font-semibold mb-4 text-secondary">
-              Languages
-            </h3>
+        <div className="bg-slate-900 rounded-2xl p-6 mt-6">
+          <div className="flex items-start justify-between">
+            <h3 className="text-xl font-semibold mb-4 text-secondary">Languages</h3>
             <div className="flex gap-2">
               <div
                 className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer"
@@ -181,10 +137,9 @@ export default function InfluencerProfile() {
               <LanguageItem language={lang} key={lang} />
             ))}
           </div>
+
           <div className="flex items-start justify-between mt-4">
-            <h3 className="text-xl font-semibold mb-4 text-secondary">
-              Niches
-            </h3>
+            <h3 className="text-xl font-semibold mb-4 text-secondary">Niches</h3>
             <div className="flex gap-2">
               <div
                 className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer"
@@ -201,7 +156,6 @@ export default function InfluencerProfile() {
               >
                 <FaPen className="" />
               </div>
-  
             </div>
           </div>
           <div className="text-white flex gap-4 flex-wrap">
@@ -211,43 +165,39 @@ export default function InfluencerProfile() {
               )
             )}
           </div>
-          <div className="flex items-start justify-between mt-4 ">
-      <h3 className="text-xl font-semibold mb-4 text-secondary">
-        Social Media
-      </h3>
-      <div className="flex gap-2">
-      <div
+
+          <div className="flex items-start justify-between mt-4">
+            <h3 className="text-xl font-semibold mb-4 text-secondary">Social Media</h3>
+            <div className="flex gap-2">
+              <div
                 className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer"
                 onClick={() =>
                   openModal("edit", "Social media", {
-                    content: socilaLinks
+                    content: socialLinks,
                   })
                 }
               >
                 <FaPen className="" />
               </div>
-        
-      </div>
-    </div>
-    <div className="flex gap-4">
-      {socilaLinks.map((link,index)=>(
-        <div key={index}>
-          <SocialMediaLink
-            icon={<FaLink className="text-blue-600" />}
-            platform={link.platform}
-            link="#"
-          />
-        </div>
-      ))}
-    </div>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {socialLinks.map((link, index) => (
+              <div key={index}>
+                <SocialMediaLink
+                  icon={<FaLink className="text-blue-600" />}
+                  platform={link.platform}
+                  link="#"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Services & Pricing */}
         <div className="bg-slate-900 shadow-md rounded-2xl p-6 mt-6">
           <div className="flex items-start justify-between">
-            <h3 className="text-xl font-semibold mb-4 text-secondary">
-              Services & Pricing
-            </h3>
+            <h3 className="text-xl font-semibold mb-4 text-secondary">Services & Pricing</h3>
             <div className="flex gap-2">
               <div
                 className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer"
@@ -259,7 +209,6 @@ export default function InfluencerProfile() {
               >
                 <FaPen className="" />
               </div>
-  
             </div>
           </div>
           <ul className="space-y-2">
@@ -287,11 +236,7 @@ export default function InfluencerProfile() {
 }
 
 // Social Media Link Component
-const SocialMediaLink: React.FC<SocialMediaLinkProps> = ({
-  icon,
-  platform,
-  link,
-}) => (
+const SocialMediaLink = ({ icon, platform, link }) => (
   <a
     href={link}
     className="text-primary hover:underline flex gap-2 items-center justify-center"
@@ -301,7 +246,7 @@ const SocialMediaLink: React.FC<SocialMediaLinkProps> = ({
 );
 
 // Service Item Component
-const ServiceItem: React.FC<ServiceItemProps> = ({ name, price }) => (
+const ServiceItem = ({ name, price }) => (
   <li className="flex justify-between">
     <span>{name}</span>
     <span className="font-semibold">${price}</span>
@@ -309,17 +254,16 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ name, price }) => (
 );
 
 // Portfolio Component
-const Portfolio: React.FC = () => (
+const Portfolio = () => (
   <div className="bg-slate-900 shadow-md rounded-2xl p-6 mt-6">
-    <div className="flex items-start justify-between ">
+    <div className="flex items-start justify-between">
       <h3 className="text-xl font-semibold mb-4 text-secondary">Portfolio</h3>
       <div className="flex gap-2">
         <div className="p-2 bg-slate-600 hover:bg-blue-600 rounded-full transition-all duration-200 cursor-pointer">
           <FaPen className="" />
         </div>
-        
       </div>
-    </div>{" "}
+    </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {portfolioItems.map((item) => (
         <PortfolioItem key={item.alt} {...item} />
@@ -329,7 +273,7 @@ const Portfolio: React.FC = () => (
 );
 
 // Portfolio Item Component
-const PortfolioItem: React.FC<PortfolioItemProps> = ({ src, alt, title }) => (
+const PortfolioItem = ({ src, alt, title }) => (
   <div className="relative group w-full h-48">
     <Image fill src={src} alt={alt} className="rounded-xl object-cover" />
     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -339,7 +283,7 @@ const PortfolioItem: React.FC<PortfolioItemProps> = ({ src, alt, title }) => (
 );
 
 // Reviews Component
-const Reviews: React.FC = () => (
+const Reviews = () => (
   <div className="bg-slate-900 shadow-md rounded-2xl p-6 mt-6">
     <h3 className="text-xl font-semibold mb-4 text-secondary">Reviews</h3>
     <div className="space-y-4">
@@ -354,13 +298,13 @@ const Reviews: React.FC = () => (
 );
 
 // Sample Data
-const services: Service[] = [
+const services = [
   { name: "Instagram Post (1 Image + Caption)", price: 150 },
   { name: "Instagram Reel (Up to 60 sec)", price: 250 },
   { name: "TikTok Video (Up to 90 sec)", price: 300 },
 ];
 
-const portfolioItems: PortfolioItemProps[] = [
+const portfolioItems = [
   {
     src: "/profile/profile.png",
     alt: "Project 1",
@@ -385,7 +329,7 @@ const portfolioItems: PortfolioItemProps[] = [
   },
 ];
 
-const reviews: Review[] = [
+const reviews = [
   {
     brand: "BrandCo",
     comment:
@@ -399,7 +343,7 @@ const reviews: Review[] = [
 ];
 
 // Language Item Component
-const LanguageItem: React.FC<{ language: string }> = ({ language }) => (
+const LanguageItem = ({ language }) => (
   <div className="flex gap-2 justify-center items-center">
     <FaCheck className="text-secondary" />
     <p>{language}</p>
@@ -407,10 +351,9 @@ const LanguageItem: React.FC<{ language: string }> = ({ language }) => (
 );
 
 // Niche Item Component
-const NicheItem: React.FC<{ niche: string }> = ({ niche }) => (
+const NicheItem = ({ niche }) => (
   <div className="flex gap-2 justify-center items-center">
     <FaCheck className="text-secondary" />
     <p>{niche}</p>
   </div>
 );
-

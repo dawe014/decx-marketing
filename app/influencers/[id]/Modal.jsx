@@ -1,20 +1,7 @@
 import { useState } from "react";
 
-interface ModalProps {
-  type: "edit" | "add";
-  section:
-    | "Languages"
-    | "Services"
-    | "About"
-    | "Portfolio"
-    | "Niches"
-    | "Social media";
-  data?: any;
-  onClose: () => void;
-}
-
 const languages = ["English", "Spanish", "French", "Oromo", "Amharic", "Afar"];
-const niches: string[] = [
+const niches = [
   "Fashion",
   "Travel",
   "Food",
@@ -24,33 +11,23 @@ const niches: string[] = [
   "Lifestyle",
   "Gaming",
 ];
-interface Service {
-  name: string;
-  fee: string;
-}
-interface SocialMedia {
-  icon: string;
-  platform: string;
-  link: string;
-}
-const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
-    Array.isArray(data?.content) ? data.content : []
-  );
-  const [selectedNiches, setSelectedNiches] = useState<string[]>(
-    Array.isArray(data?.content) ? data.content : []
-  );
-  const [services, setServices] = useState<Service[]>(
-    Array.isArray(data?.content) ? data.content : []
-  );
-  const [socialMedia, setSocialMedia] = useState<SocialMedia[]>(
-    Array.isArray(data?.content) ? data.content : []
-  );
 
+const Modal = ({ type, section, data, onClose }) => {
+  const [selectedLanguages, setSelectedLanguages] = useState(
+    Array.isArray(data?.content) ? data.content : []
+  );
+  const [selectedNiches, setSelectedNiches] = useState(
+    Array.isArray(data?.content) ? data.content : []
+  );
+  const [services, setServices] = useState(
+    Array.isArray(data?.content) ? data.content : []
+  );
+  const [socialMedia, setSocialMedia] = useState(
+    Array.isArray(data?.content) ? data.content : []
+  );
   const [about, setAbout] = useState(data?.content || "");
 
-
-  const handleCheckboxChange = (language?: string, niche?: string) => {
+  const handleCheckboxChange = (language, niche) => {
     if (language) {
       setSelectedLanguages((prev) =>
         prev.includes(language)
@@ -68,7 +45,6 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
     }
   };
 
-  // Separate languages into checked and unchecked
   const checkedLanguages = languages.filter((lang) =>
     selectedLanguages.includes(lang)
   );
@@ -76,52 +52,46 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
     (lang) => !selectedLanguages.includes(lang)
   );
 
-  // Separate niches into checked and unchecked
   const checkedNiches = niches.filter((niche) =>
     selectedNiches.includes(niche)
   );
   const uncheckedNiches = niches.filter(
     (niche) => !selectedNiches.includes(niche)
   );
+
   const addService = () => {
     setServices([...services, { name: "", fee: "" }]);
   };
   const addLink = () => {
     setSocialMedia([...socialMedia, { platform: "", link: "", icon: "" }]);
   };
-  
 
-  const removeService = (index: number) => {
+  const removeService = (index) => {
     setServices(services.filter((_, i) => i !== index));
   };
-  const removeLink = (index: number) => {
+  const removeLink = (index) => {
     setSocialMedia(socialMedia.filter((_, i) => i !== index));
   };
 
-  const handleInputChange = (
-    index: number,
-    field: keyof Service | keyof SocialMedia,
-    value: string
-  ) => {
+  const handleInputChange = (index, field, value) => {
     if (section === "Services") {
       const updatedServices = [...services];
       updatedServices[index] = {
         ...updatedServices[index],
-        [field]: value, // Explicitly assert type
-      } as Service;
+        [field]: value,
+      };
       setServices(updatedServices);
     }
-  
+
     if (section === "Social media") {
       const updatedSocialMedia = [...socialMedia];
       updatedSocialMedia[index] = {
         ...updatedSocialMedia[index],
-        [field]: value, // Explicitly assert type
-      } as SocialMedia;
+        [field]: value,
+      };
       setSocialMedia(updatedSocialMedia);
     }
   };
-  
 
   const handleSave = () => {
     console.log("Saving...");
@@ -137,7 +107,7 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
       );
     } else if (section === "Services") {
       console.log(
-        type === "edit" ? "Updating Service..." : "Adding Service...",
+        type === "edit" ? "Updating Service..." : "Adding Service..."
       );
     } else if (section === "About") {
       console.log("Updating About...", about);
@@ -146,8 +116,8 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center  z-40">
-      <div className="bg-slate-900 p-6 rounded-lg sm:w-full md:w-4/6 max-h-96 overflow-y-auto ">
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-40">
+      <div className="bg-slate-900 p-6 rounded-lg sm:w-full md:w-4/6 max-h-96 overflow-y-auto">
         <h2 className="text-xl font-semibold">
           {type === "edit" ? "Edit" : "Add"} {section}
         </h2>
@@ -172,7 +142,6 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
           <div className="mt-4">
             <label className="block text-gray-300">Your Language</label>
             <div className="flex flex-col gap-3">
-              {/* Render checked languages first */}
               <div className="flex flex-wrap gap-3 border-b border-slate-700">
                 {checkedLanguages.map((language) => (
                   <div key={language} className="flex items-center mb-2">
@@ -189,7 +158,6 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
                   </div>
                 ))}
               </div>
-              {/* Render unchecked languages below */}
               <div className="flex flex-wrap gap-3">
                 {uncheckedLanguages.map((language) => (
                   <div key={language} className="flex items-center mb-2">
@@ -215,7 +183,6 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
           <div className="mt-4">
             <label className="block text-gray-300">Select Your Niches</label>
             <div>
-              {/* Render checked niches first */}
               <div className="flex flex-wrap gap-3 border-b border-slate-700">
                 {checkedNiches.map((niche) => (
                   <div key={niche} className="flex items-center mb-2">
@@ -232,7 +199,6 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
                   </div>
                 ))}
               </div>
-              {/* Render unchecked niches below */}
               <div className="flex flex-wrap gap-3">
                 {uncheckedNiches.map((niche) => (
                   <div key={niche} className="flex items-center mb-2">
@@ -255,11 +221,11 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
 
         {/* Social media Form */}
         {section === "Social media" && (
-          <div className=" mx-auto p-6  shadow-md rounded-lg space-y-4 flex flex-col">
+          <div className="mx-auto p-6 shadow-md rounded-lg space-y-4 flex flex-col">
             {socialMedia.map((social, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 border border-secondary p-3 rounded-lg  text-black   "
+                className="flex items-center gap-3 border border-secondary p-3 rounded-lg text-black"
               >
                 <div className="flex flex-col gap-2 md:flex-row md:gap-3 w-full">
                   <input
@@ -267,7 +233,7 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
                     placeholder="Platform Name (e.g., Instagram)"
                     value={social.platform}
                     onChange={(e) =>
-                      handleInputChange(index, "name", e.target.value)
+                      handleInputChange(index, "platform", e.target.value)
                     }
                     className="text-white outline-none bg-slate-700 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
@@ -302,13 +268,14 @@ const Modal: React.FC<ModalProps> = ({ type, section, data, onClose }) => {
             </button>
           </div>
         )}
+
         {/* Service Form */}
         {section === "Services" && (
-          <div className=" mx-auto p-6  shadow-md rounded-lg space-y-4 flex flex-col">
+          <div className="mx-auto p-6 shadow-md rounded-lg space-y-4 flex flex-col">
             {services.map((service, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 border border-secondary p-3 rounded-lg  text-black   "
+                className="flex items-center gap-3 border border-secondary p-3 rounded-lg text-black"
               >
                 <div className="flex flex-col gap-2 md:flex-row md:gap-3 w-full">
                   <input
