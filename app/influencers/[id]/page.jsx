@@ -221,8 +221,6 @@ export default function InfluencerProfile() {
         {/* Portfolio */}
         <Portfolio />
 
-        {/* Reviews */}
-        <Reviews />
 
         {/* Contact / Hire Button (Sticky) */}
         <div className="fixed bottom-4 right-4">
@@ -282,21 +280,6 @@ const PortfolioItem = ({ src, alt, title }) => (
   </div>
 );
 
-// Reviews Component
-const Reviews = () => (
-  <div className="bg-slate-900 shadow-md rounded-2xl p-6 mt-6">
-    <h3 className="text-xl font-semibold mb-4 text-secondary">Reviews</h3>
-    <div className="space-y-4">
-      {reviews.map((review) => (
-        <div key={review.brand}>
-          <p className="font-medium">⭐️⭐️⭐️⭐️⭐️ by {review.brand}</p>
-          <p className="text-white">{review.comment}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
 // Sample Data
 const services = [
   { name: "Instagram Post (1 Image + Caption)", price: 150 },
@@ -326,19 +309,6 @@ const portfolioItems = [
     src: "/profile/profile6.png",
     alt: "Project 6",
     title: "Tech Unboxing Video",
-  },
-];
-
-const reviews = [
-  {
-    brand: "BrandCo",
-    comment:
-      "John was amazing to work with! The video he created boosted our engagement significantly.",
-  },
-  {
-    brand: "FreshSnacks",
-    comment:
-      "Highly professional and creative content. We&apos;ll definitely work with John again.",
   },
 ];
 
