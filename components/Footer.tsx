@@ -1,8 +1,18 @@
+'use client'
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
+
+  const pathname = usePathname()
+
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+
+  if (isDashboardRoute) {
+    return null; // Do not render the header if on a dashboard route
+  }
   return (
     <footer className="bg-background text-textPrimary py-10 px-6 border-t border-slate-800">
       <div className="max-w-7xl mx-auto ">

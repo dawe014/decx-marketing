@@ -1,0 +1,131 @@
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const sendEmail = require("../utils/email");
+const { default: connectDB } = require("../config/database");
+
+exports.register = async (req, res) => {
+  try {
+    await connectDB()
+    const { email, password, role } = req.body;
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // Create user
+    const user = new User({
+      email,
+      password,
+      role,
+      verificationToken: crypto.randomBytes(20).toString("hex"),
+    });
+
+    await user.save();
+
+    // Send verification email
+    const verificationUrl = `${req.protocol}://${req.get("host")}/api/auth/verify/${user.verificationToken}`;
+    await sendEmail({
+      email: user.email,
+      subject: "Verify your DECx account",
+      message: `Please click the following link to verify your account: ${verificationUrl}`,
+    });
+
+    res.status(201).json({
+      message: "User registered. Please check your email to verify your account.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Registration failed", error: error.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    await connectDB()
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Check if verified
+    if (!user.isVerified) {
+      return res.status(401).json({ message: "Please verify your email first" });
+    }
+
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // Store refresh token
+    user.refreshToken = refreshToken;
+    user.lastLogin = Date.now();
+    await user.save();
+
+    // Set secure cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      message: "Login successful",
+      userId: user._id,
+      role: user.role,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Login failed", error: error.message });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    await connectDB()
+    const { token } = req.params;
+
+    // Find user with token
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully. You can now log in." });
+  } catch (error) {
+    res.status(500).json({ message: "Verification failed", error: error.message });
+  }
+};

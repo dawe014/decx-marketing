@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import StepProgress from "./StepProgress";
+// import { ProfileProvider } from "@/context/InfluencerProfile";
 
 interface ProfileLayoutProps {
   step: number;
@@ -8,11 +9,25 @@ interface ProfileLayoutProps {
 
 export default function ProfileLayout({ step, children }: ProfileLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <StepProgress currentStep={step} />
-      <div className="bg-bgSecondary/30 sm:p-3 md:p-8 shadow-xl rounded-2xl w-full max-w-3xl mt-6">
-        {children}
+    // <ProfileProvider>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-br from-gray-900 to-gray-800">
+      <div className="w-full max-w-2xl space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Create Your Profile
+          </h1>
+          <p className="text-gray-400">
+            Complete your profile to unlock full features
+          </p>
+        </div>
+
+        <StepProgress currentStep={step} />
+
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 sm:p-8 shadow-2xl">
+          {children}
+        </div>
       </div>
     </div>
+    // </ProfileProvider>
   );
 }

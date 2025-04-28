@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ClientWrapper from "@/components/ClientWrapper"; // Import client-side script handler
+import { SessionProvider } from "next-auth/react";
+import { ToastProvider } from "@/components/Toaster";
 
 export const metadata: Metadata = {
   title: "DECx - Find and Hire Social Media Influencers",
@@ -55,7 +57,10 @@ export default function RootLayout({
       <body>
         <Navbar />
         <ClientWrapper /> {/* This handles client-side logic */}
-        <main className="pt-20">{children}</main>
+        <main className="pt-20">
+          <SessionProvider>{children}</SessionProvider>
+          <ToastProvider />
+        </main>
         <Footer />
       </body>
     </html>

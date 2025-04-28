@@ -1,94 +1,147 @@
 "use client";
 
+import { useState, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import ProfileLayout from "@/components/ProfileLayout";
-import { useState } from "react";
-
-interface PortfolioItem {
-  file: File | null;
-  description: string;
-}
+import { FiUpload, FiX, FiArrowRight, FiUser } from "react-icons/fi";
+import Image from "next/image";
 
 export default function StepFour() {
   const router = useRouter();
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const addPortfolioItem = () => {
-    setPortfolio([...portfolio, { file: null, description: "" }]);
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileToUpload(file);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setProfileImage(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleFileChange = (index: number, file: File | null) => {
-    const updatedPortfolio = [...portfolio];
-    updatedPortfolio[index].file = file;
-    setPortfolio(updatedPortfolio);
+  const removeProfileImage = () => {
+    setProfileImage(null);
+    setFileToUpload(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleDescriptionChange = (index: number, value: string) => {
-    const updatedPortfolio = [...portfolio];
-    updatedPortfolio[index].description = value;
-    setPortfolio(updatedPortfolio);
-  };
+  const handleSubmit = async () => {
+    if (!fileToUpload) {
+      alert("Please upload a profile image");
+      return;
+    }
 
-  const removePortfolioItem = (index: number) => {
-    setPortfolio(portfolio.filter((_, i) => i !== index));
-  };
+    const formData = new FormData();
+    formData.append("profileImage", fileToUpload);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(portfolio);
-    router.push("/create-profile/step-5");
+    setIsUploading(true);
+
+    const res = await fetch("/api/profile/upload", {
+      method: "PATCH",
+      body: formData,
+    });
+
+    const data = await res.json();
+    setIsUploading(false);
+
+    if (res.ok) {
+      router.push("/create-profile/step-5");
+    } else {
+      alert(data.message || "Failed to upload image");
+    }
   };
 
   return (
     <ProfileLayout step={4}>
-      <h2 className="text-2xl font-bold mb-6 text-center">Portfolio</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 max-w-lg mx-auto p-6 text-black shadow-md rounded-lg flex flex-col"
-      >
-        {portfolio.map((item, index) => (
-          <div
-            key={index}
-            className="border border-secondary p-3 rounded-lg bg-background mb-4"
-          >
-            <input placeholder="file"
+      <div className="max-w-md mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Profile Picture
+          </h2>
+          <p className="text-slate-400">
+            Upload a high-quality photo that represents you
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="flex flex-col items-center">
+            <div className="relative mb-4">
+              {profileImage ? (
+                <>
+                  <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-indigo-500/30 relative flex items-center justify-center">
+                    <Image
+                      src={profileImage}
+                      alt="Profile"
+                      height={500}
+                      width={500}
+                      className="object-cover"
+                    />
+                  </div>
+                  <button
+                    onClick={removeProfileImage}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5"
+                    title="Remove photo"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <div className="w-40 h-40 rounded-full bg-slate-700/50 border-4 border-dashed border-slate-600 flex items-center justify-center">
+                  <FiUser className="text-5xl text-slate-500" />
+                </div>
+              )}
+            </div>
+
+            <input
               type="file"
-              accept="image/*,video/*"
-              className=" p-2 w-full rounded-lg text-white outline-none bg-slate-700"
-              onChange={(e) =>
-                handleFileChange(index, e.target.files?.[0] || null)
-              }
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              accept="image/*"
+              className="hidden"
+              id="profile-upload"
             />
-            <textarea
-              placeholder="Description of your work"
-              className=" p-2 w-full rounded-lg mt-2 text-white outline-none bg-slate-700 focus:ring-2 focus:ring-blue-500"
-              value={item.description}
-              onChange={(e) => handleDescriptionChange(index, e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => removePortfolioItem(index)}
-              className="text-red-500 mt-2"
+            <label
+              htmlFor="profile-upload"
+              className={`flex items-center justify-center px-6 py-3 rounded-lg cursor-pointer transition-colors ${
+                isUploading
+                  ? "bg-slate-700 text-slate-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white"
+              }`}
             >
-              ❌ Remove
-            </button>
+              <FiUpload className="mr-2" />
+              {isUploading
+                ? "Uploading..."
+                : profileImage
+                ? "Change Photo"
+                : "Upload Photo"}
+            </label>
+
+            <p className="text-xs text-slate-500 mt-3">
+              Recommended: Square image, at least 500x500 pixels
+            </p>
           </div>
-        ))}
-        <button
-          type="button"
-          onClick={addPortfolioItem}
-          className="bg-green-600 text-white md:w-max py-2 px-4 rounded-lg w-full hover:bg-green-700 transition"
-        >
-          Add Portfolio Item
-        </button>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white md:w-max py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition"
-        >
-          Finish
-        </button>
-      </form>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!profileImage || isUploading}
+            className={`w-full py-3 px-6 rounded-lg transition-colors flex items-center justify-center ${
+              profileImage && !isUploading
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                : "bg-slate-700 text-slate-400 cursor-not-allowed"
+            }`}
+          >
+            Complete Profile <FiArrowRight className="ml-2" />
+          </button>
+        </div>
+      </div>
     </ProfileLayout>
   );
 }
