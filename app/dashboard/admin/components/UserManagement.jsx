@@ -12,6 +12,14 @@ import {
   FiEdit2,
   FiRotateCw,
   FiExternalLink,
+  FiGlobe,
+  FiInstagram,
+  FiYoutube,
+  FiTwitter,
+  FiLinkedin,
+  FiFacebook,
+  FiDollarSign,
+  FiCalendar,
 } from "react-icons/fi";
 
 export default function UserManagement() {
@@ -51,7 +59,11 @@ export default function UserManagement() {
           .toLowerCase()
           .includes(searchQuery.toLowerCase())) ||
       (user.email &&
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()));
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (user.profile?.companyName &&
+        user.profile.companyName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()));
     const matchesFilter = activeFilter === "all" || user.role === activeFilter;
     return matchesSearch && matchesFilter;
   });
@@ -164,11 +176,27 @@ export default function UserManagement() {
     );
   };
 
-  const viewInfluencerProfile = (user) => {
+  const viewUserProfile = (user) => {
     setViewingProfile(user);
   };
 
-  console.log(users);
+  const getPlatformIcon = (platform) => {
+    switch (platform.toLowerCase()) {
+      case "instagram":
+        return <FiInstagram className="mr-1" />;
+      case "youtube":
+        return <FiYoutube className="mr-1" />;
+      case "twitter":
+        return <FiTwitter className="mr-1" />;
+      case "linkedin":
+        return <FiLinkedin className="mr-1" />;
+      case "facebook":
+        return <FiFacebook className="mr-1" />;
+      default:
+        return <FiGlobe className="mr-1" />;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -180,7 +208,7 @@ export default function UserManagement() {
             </div>
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search users by name, email, or company..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-slate-400"
@@ -261,18 +289,19 @@ export default function UserManagement() {
                           {user.profile
                             ? (user.role == "influencer" &&
                                 user.profile.fullName) ||
-                              (user.role == "brand" && user.profile.companyName)
+                              (user.role == "brand" &&
+                                user.profile.companyName) ||
+                              (user.role == "agency" && user.profile.agencyName)
                             : "Admin"}
                         </p>
-                        {user.role === "influencer" && (
-                          <button
-                            onClick={() => viewInfluencerProfile(user)}
-                            className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 flex items-center"
-                          >
-                            View Profile{" "}
-                            <FiExternalLink className="ml-1" size={12} />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => viewUserProfile(user)}
+                          className="text-xs text-indigo-400 hover:text-indigo-300 mt-1 flex items-center"
+                        >
+                          View{" "}
+                          {user.role === "influencer" ? "Profile" : "Details"}{" "}
+                          <FiExternalLink className="ml-1" size={12} />
+                        </button>
                       </div>
                     </div>
                   </td>
@@ -300,7 +329,7 @@ export default function UserManagement() {
                       )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
-                    {user.joined}
+                    {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     <button
@@ -381,19 +410,27 @@ export default function UserManagement() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">
-                    Name
+                    {editingUser.role === "influencer"
+                      ? "Full Name"
+                      : "Company Name"}
                   </label>
                   <input
                     type="text"
                     name={
-                      editingUser.profile.fullName ? "fullName" : "companyName"
+                      editingUser.role === "influencer"
+                        ? "fullName"
+                        : editingUser.role === "brand"
+                        ? "companyName"
+                        : "agencyName"
                     }
                     value={
-                      editingUser.profile?.fullName
-                        ? editingUser.profile.fullName
-                        : editingUser.profile?.companyName || ""
+                      editingUser.role === "influencer"
+                        ? editingUser.profile?.fullName || ""
+                        : editingUser.role === "brand"
+                        ? editingUser.profile?.companyName || ""
+                        : editingUser.profile?.agencyName || ""
                     }
-                    onChange={handleInputChange}
+                    onChange={handleProfileInputChange}
                     className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white"
                   />
                 </div>
@@ -416,7 +453,7 @@ export default function UserManagement() {
                     User Type
                   </label>
                   <select
-                    name="type"
+                    name="role"
                     value={editingUser.role}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white"
@@ -433,19 +470,26 @@ export default function UserManagement() {
                     <h3 className="text-sm font-medium text-slate-300 mb-3">
                       Influencer Profile
                     </h3>
-                    {editingUser.profile.socialMedia.map((social, index) => (
-                      <div key={index} className="space-y-3">
+                    {editingUser.profile.socialMedia?.map((social, index) => (
+                      <div key={index} className="space-y-3 mb-4">
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1">
                             Platform
                           </label>
-                          <input
-                            type="text"
+                          <select
                             name="platform"
                             value={social.platform || ""}
                             onChange={(e) => handleProfileInputChange(e, index)}
                             className="w-full px-3 py-1 text-sm border border-slate-700 rounded bg-slate-800 text-white"
-                          />
+                          >
+                            <option value="Instagram">Instagram</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Twitter">Twitter</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Other">Other</option>
+                          </select>
                         </div>
 
                         <div>
@@ -480,6 +524,54 @@ export default function UserManagement() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {(editingUser.role === "brand" ||
+                  editingUser.role === "agency") && (
+                  <div className="bg-slate-900/50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-slate-300 mb-3">
+                      {editingUser.role === "brand" ? "Brand" : "Agency"}{" "}
+                      Details
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">
+                          Industry
+                        </label>
+                        <input
+                          type="text"
+                          name="industry"
+                          value={editingUser.profile?.industry || ""}
+                          onChange={handleProfileInputChange}
+                          className="w-full px-3 py-1 text-sm border border-slate-700 rounded bg-slate-800 text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">
+                          Website
+                        </label>
+                        <input
+                          type="url"
+                          name="website"
+                          value={editingUser.profile?.website || ""}
+                          onChange={handleProfileInputChange}
+                          className="w-full px-3 py-1 text-sm border border-slate-700 rounded bg-slate-800 text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          name="description"
+                          value={editingUser.profile?.description || ""}
+                          onChange={handleProfileInputChange}
+                          className="w-full px-3 py-1 text-sm border border-slate-700 rounded bg-slate-800 text-white"
+                          rows="3"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -522,14 +614,18 @@ export default function UserManagement() {
         </div>
       )}
 
-      {/* Influencer Profile Modal */}
+      {/* User Profile Modal */}
       {viewingProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4 ">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-2xl h-[90%] overflow-y-scroll ">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-white">
-                  Influencer Profile
+                  {viewingProfile.role === "influencer"
+                    ? "Influencer Profile"
+                    : viewingProfile.role === "brand"
+                    ? "Brand Details"
+                    : "Agency Details"}
                 </h2>
                 <button
                   onClick={() => setViewingProfile(null)}
@@ -539,102 +635,304 @@ export default function UserManagement() {
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
-                    {viewingProfile.profile.profilePhoto ? (
-                      <Image
-                        src={viewingProfile.profile.profilePhoto}
-                        alt="Profile Photo"
-                        width={500}
-                        height={500}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <span className="text-2xl text-white font-medium">
-                        {viewingProfile.profile.fullName
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </span>
-                    )}
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-32 h-32 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                      {viewingProfile.profile?.profilePhoto ||
+                      viewingProfile.profile?.logo ? (
+                        <Image
+                          src={
+                            viewingProfile.profile.profilePhoto ||
+                            viewingProfile.profile.logo
+                          }
+                          alt="Profile"
+                          width={500}
+                          height={500}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <span className="text-4xl text-white font-medium">
+                          {(
+                            viewingProfile.profile?.fullName ||
+                            viewingProfile.profile?.companyName ||
+                            viewingProfile.profile?.agencyName
+                          )
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">
-                      {viewingProfile.profile.fullName}
+
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-white">
+                      {viewingProfile.role === "influencer"
+                        ? viewingProfile.profile?.fullName
+                        : viewingProfile.role === "brand"
+                        ? viewingProfile.profile?.companyName
+                        : viewingProfile.profile?.agencyName}
                     </h3>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-slate-400 mb-4">
                       {viewingProfile.email}
                     </p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {getUserTypeBadge(viewingProfile.role)}
+                      {getUserStatusBadge(viewingProfile.status)}
+                      {viewingProfile.role === "influencer" && (
+                        <span className="text-xs px-2 py-1 rounded-full bg-purple-900/30 text-purple-400">
+                          {viewingProfile.profile?.category || "General"}
+                        </span>
+                      )}
+                    </div>
+
+                    {viewingProfile.role !== "influencer" && (
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-slate-400">
+                          <FiBriefcase className="mr-2" />
+                          <span>
+                            {viewingProfile.profile?.industry ||
+                              "No industry specified"}
+                          </span>
+                        </div>
+                        {viewingProfile.profile?.website && (
+                          <div className="flex items-center text-sm text-slate-400">
+                            <FiGlobe className="mr-2" />
+                            <a
+                              href={viewingProfile.profile.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-400 hover:text-indigo-300"
+                            >
+                              {viewingProfile.profile.website}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-slate-900/50 p-4 rounded-lg">
-                  <div className="grid grid-cols-2 gap-4">
-                    {viewingProfile.profile.socialMedia.map((social, index) => (
-                      <div key={index}>
-                        <p className="text-sm text-slate-400">
-                          {social.platform} Followers
-                        </p>
+                {viewingProfile.role === "influencer" ? (
+                  <div className="bg-slate-900/50 p-4 rounded-lg">
+                    <h3 className="text-lg font-medium text-slate-300 mb-4">
+                      Social Media Profiles
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {viewingProfile.profile.socialMedia?.map(
+                        (social, index) => (
+                          <div
+                            key={index}
+                            className="bg-slate-800 p-3 rounded-lg"
+                          >
+                            <div className="flex items-center mb-2">
+                              {getPlatformIcon(social.platform)}
+                              <span className="font-medium text-white">
+                                {social.platform}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="text-xs text-slate-400">
+                                  Followers
+                                </p>
+                                <p
+                                  className={`text-lg font-bold ${
+                                    social.followers >= 5000
+                                      ? "text-green-400"
+                                      : "text-red-400"
+                                  }`}
+                                >
+                                  {social.followers?.toLocaleString() || "0"}
+                                </p>
+                              </div>
+                              <a
+                                href={social.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center"
+                              >
+                                View{" "}
+                                <FiExternalLink className="ml-1" size={14} />
+                              </a>
+                            </div>
+                            {social.followers < 5000 && (
+                              <p className="text-xs text-red-400 mt-1">
+                                Minimum 5,000 followers required
+                              </p>
+                            )}
+                          </div>
+                        )
+                      )}
+                    </div>
 
-                        <p
-                          className={`text-lg font-bold ${
-                            social.followers >= 5000
-                              ? "text-green-400"
-                              : "text-red-400"
-                          }`}
-                        >
-                          {social.followers.toLocaleString()}
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                      <div className="bg-slate-800 p-3 rounded-lg">
+                        <p className="text-xs text-slate-400">
+                          Engagement Rate
                         </p>
-
-                        {social.followers < 5000 && (
-                          <p className="text-xs text-red-400">
-                            Minimum 5,000 required
-                          </p>
-                        )}
+                        <p className="text-lg font-bold text-white">
+                          {viewingProfile.profile?.engagementRate || "N/A"}%
+                        </p>
                       </div>
-                    ))}
+                      <div className="bg-slate-800 p-3 rounded-lg">
+                        <p className="text-xs text-slate-400">Average Views</p>
+                        <p className="text-lg font-bold text-white">
+                          {viewingProfile.profile?.averageViews?.toLocaleString() ||
+                            "N/A"}
+                        </p>
+                      </div>
+                    </div>
 
-                    <div>
-                      <p className="text-sm text-slate-400">Profile</p>
+                    {viewingProfile.profile?.bio && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium text-slate-300 mb-2">
+                          Bio
+                        </h4>
+                        <p className="text-slate-400 text-sm">
+                          {viewingProfile.profile.bio}
+                        </p>
+                      </div>
+                    )}
+                    {/* Public Profile Link */}
+                    <div className="mt-4">
                       <a
-                        href={viewingProfile.profile.link}
+                        href={`/influencers/${viewingProfile._id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center"
+                        className="inline-flex items-center text-indigo-400 hover:text-indigo-300 bg-slate-800 px-4 py-2 rounded-lg"
                       >
-                        View Profile{" "}
-                        <FiExternalLink className="ml-1" size={14} />
+                        <FiExternalLink className="mr-2" />
+                        View Public Profile
                       </a>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-slate-900/50 p-4 rounded-lg">
+                    <h3 className="text-lg font-medium text-slate-300 mb-4">
+                      {viewingProfile.role === "brand" ? "Brand" : "Agency"}{" "}
+                      Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-slate-400">Industry</p>
+                        <p className="text-white">
+                          {viewingProfile.profile?.industry || "Not specified"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400">Location</p>
+                        <p className="text-white">
+                          {viewingProfile.profile?.location || "Not specified"}
+                        </p>
+                      </div>
+                      {viewingProfile.profile?.website && (
+                        <div>
+                          <p className="text-xs text-slate-400">Website</p>
+                          <a
+                            href={viewingProfile.profile.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-400 hover:text-indigo-300"
+                          >
+                            {viewingProfile.profile.website}
+                          </a>
+                        </div>
+                      )}
+                      {viewingProfile.profile?.founded && (
+                        <div>
+                          <p className="text-xs text-slate-400">Founded</p>
+                          <p className="text-white">
+                            {new Date(
+                              viewingProfile.profile.founded
+                            ).getFullYear()}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {viewingProfile.profile?.description && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium text-slate-300 mb-2">
+                          About
+                        </h4>
+                        <p className="text-slate-400 text-sm">
+                          {viewingProfile.profile.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="pt-4 flex justify-between">
+                  {viewingProfile.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleApproveUser(viewingProfile._id);
+                          setViewingProfile(null);
+                        }}
+                        disabled={
+                          viewingProfile.role === "influencer" &&
+                          viewingProfile.profile.followers < 5000
+                        }
+                        className={`px-4 py-2 rounded-lg flex items-center ${
+                          viewingProfile.role !== "influencer" ||
+                          viewingProfile.profile.followers >= 5000
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-gray-600 text-gray-400 cursor-not-allowed"
+                        }`}
+                      >
+                        <FiCheck className="mr-2" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleRejectUser(viewingProfile._id);
+                          setViewingProfile(null);
+                        }}
+                        className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center"
+                      >
+                        <FiX className="mr-2" />
+                        Reject
+                      </button>
+                    </>
+                  )}
+
+                  {viewingProfile.status === "suspended" && (
+                    <button
+                      onClick={() => {
+                        handleActivateUser(viewingProfile._id);
+                        setViewingProfile(null);
+                      }}
+                      className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white flex items-center"
+                    >
+                      <FiCheck className="mr-2" />
+                      Activate
+                    </button>
+                  )}
+
+                  {viewingProfile.status === "active" && (
+                    <button
+                      onClick={() => {
+                        handleSuspendUser(viewingProfile._id);
+                        setViewingProfile(null);
+                      }}
+                      className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center"
+                    >
+                      <FiX className="mr-2" />
+                      Suspend
+                    </button>
+                  )}
+
                   <button
-                    onClick={() => {
-                      handleApproveUser(viewingProfile.id);
-                      setViewingProfile(null);
-                    }}
-                    disabled={viewingProfile.profile.followers < 5000}
-                    className={`px-4 py-2 rounded-lg flex items-center ${
-                      viewingProfile.profile.followers >= 5000
-                        ? "bg-green-600 hover:bg-green-700 text-white"
-                        : "bg-gray-600 text-gray-400 cursor-not-allowed"
-                    }`}
+                    onClick={() => handleEditUser(viewingProfile)}
+                    className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center"
                   >
-                    <FiCheck className="mr-2" />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleRejectUser(viewingProfile.id);
-                      setViewingProfile(null);
-                    }}
-                    className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center"
-                  >
-                    <FiX className="mr-2" />
-                    Reject
+                    <FiEdit2 className="mr-2" />
+                    Edit
                   </button>
                 </div>
               </div>

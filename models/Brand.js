@@ -34,28 +34,23 @@ const brandSchema = new mongoose.Schema({
     position: String,
     phone: String,
   },
+
   subscription: {
-    type: {
-      type: String,
-      enum: ["free", "basic", "premium", "enterprise"],
+    planId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
     },
-    startDate: Date,
-    endDate: Date,
+    startedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    expiresAt: Date,
     status: {
       type: String,
       enum: ["active", "expired", "canceled"],
+      default: "active",
     },
   },
-  paymentMethods: [
-    {
-      type: {
-        type: String,
-        enum: ["credit_card", "paypal", "bank_transfer"],
-      },
-      details: mongoose.Schema.Types.Mixed,
-      isDefault: Boolean,
-    },
-  ],
   campaigns: [
     {
       type: mongoose.Schema.Types.ObjectId,

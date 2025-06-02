@@ -27,12 +27,19 @@ const articleSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  readTime: {
+    type: String,
+    default: "5 min",
+  },
   status: {
     type: String,
     enum: ["draft", "published", "archived"],
     default: "draft",
   },
-  publishedAt: Date,
+  publishedAt: {
+    type: Date,
+    default: Date.now,
+  },
   views: {
     type: Number,
     default: 0,

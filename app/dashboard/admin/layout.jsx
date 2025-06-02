@@ -25,6 +25,8 @@ import {
 // import ModerationPanel from "./components/ModerationPanel";
 // import SystemSettings from "./components/SystemSettings";
 import Link from "next/link";
+import { MdArticle } from "react-icons/md";
+import Image from "next/image";
 
 export default function AdminDashboardLayout({ children }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -39,9 +41,20 @@ export default function AdminDashboardLayout({ children }) {
       <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
         {/* Logo */}
         <div className="p-4 border-b border-slate-700">
-          <h1 className="text-2xl font-bold text-indigo-400">
-            InfluenceConnect
-          </h1>
+          <Link
+            className="flex flex-shrink-0 items-start"
+            href="/dashboard/admin"
+          >
+            <div>
+              <Image
+                src="/logo-removebg.png"
+                alt="Logo"
+                width={500}
+                height={500}
+                className="w-24 h-12"
+              />
+            </div>
+          </Link>
           <p className="text-xs text-slate-400">Admin Dashboard</p>
         </div>
 
@@ -101,6 +114,32 @@ export default function AdminDashboardLayout({ children }) {
             >
               <FiBriefcase className="flex-shrink-0" />
               <span>Campaigns</span>
+            </button>
+          </Link>
+          <Link href="/dashboard/admin/messages">
+            <button
+              onClick={() => setActiveTab("messages")}
+              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
+                activeTab === "messages"
+                  ? "bg-indigo-900/30 text-indigo-400"
+                  : "hover:bg-slate-700/50"
+              }`}
+            >
+              <FiMessageSquare className="flex-shrink-0" />
+              <span>Messages</span>
+            </button>
+          </Link>
+          <Link href="/dashboard/admin/e-magazine">
+            <button
+              onClick={() => setActiveTab("e-magazine")}
+              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
+                activeTab === "e-magazine"
+                  ? "bg-indigo-900/30 text-indigo-400"
+                  : "hover:bg-slate-700/50"
+              }`}
+            >
+              <MdArticle className="flex-shrink-0" />
+              <span>E-Magazine</span>
             </button>
           </Link>
           <Link href="/dashboard/admin/reports">
@@ -210,6 +249,7 @@ export default function AdminDashboardLayout({ children }) {
               {activeTab === "overview" && "Admin Overview"}
               {activeTab === "users" && "User Management"}
               {activeTab === "campaigns" && "Campaign Management"}
+              {activeTab === "e-magazine" && "Manage Articles"}
               {activeTab === "reports" && "Platform Reports"}
               {activeTab === "moderation" && "Content Moderation"}
               {activeTab === "settings" && "System Settings"}

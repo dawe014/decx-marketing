@@ -1,13 +1,12 @@
-// Import required modules
-
 const mongoose = require("mongoose");
 
 const applicationSchema = new mongoose.Schema({
   campaign: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
   influencer: { type: mongoose.Schema.Types.ObjectId, ref: "Influencer" },
-  title: String,
-  proposal: String,
-  quote: Number,
+  title: String, // Optional: may be set from campaign or user input
+  proposal: String, // This matches the "Cover Letter" field
+  quote: Number, // This matches "Your Rate ($)"
+  portfolioLinks: [String], // New field to store multiple links
   status: {
     type: String,
     enum: ["pending", "shortlisted", "rejected", "hired", "completed"],

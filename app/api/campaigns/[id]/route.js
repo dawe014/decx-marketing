@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Campaign from "@/models/Campaign";
 import Brand from "@/models/Brand";
+import Application from "@/models/Application";
 import { getToken } from "next-auth/jwt";
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -78,7 +79,13 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
 
-    const data = await Campaign.findById(campaignId).populate("applications");
+    const data = await Campaign.findById(campaignId).populate({
+      path: "applications.application",
+      populate: {
+        path: "influencer",
+        model: "Influencer",
+      },
+    });
     return NextResponse.json({ campaign: data }, { status: 200 });
   } catch (error) {
     console.error("Fetching campaign error:", error);

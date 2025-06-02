@@ -23,6 +23,7 @@ import NewJobPage from "./components/NewJobPage";
 import BillingComponent from "./components/BillingComponent";
 import SettingsComponent from "./components/SettingsComponent";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BrandDashboardLayout({ children }) {
   const [activeTab, setActiveTab] = useState("jobs");
@@ -36,9 +37,20 @@ export default function BrandDashboardLayout({ children }) {
       <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
         {/* Logo */}
         <div className="p-4 border-b border-slate-700">
-          <h1 className="text-2xl font-bold text-indigo-400">
-            InfluenceConnect
-          </h1>
+          <Link
+            className="flex flex-shrink-0 items-start"
+            href="/dashboard/brand-owner"
+          >
+            <div>
+              <Image
+                src="/logo-removebg.png"
+                alt="Logo"
+                width={500}
+                height={500}
+                className="w-24 h-12"
+              />
+            </div>
+          </Link>
           <p className="text-xs text-slate-400">Brand Dashboard</p>
         </div>
 
@@ -58,7 +70,7 @@ export default function BrandDashboardLayout({ children }) {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <Link href="brand-owner/campaigns">
+          <Link href="/dashboard/brand-owner/campaigns">
             <button
               onClick={() => setActiveTab("jobs")}
               className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
@@ -71,74 +83,50 @@ export default function BrandDashboardLayout({ children }) {
               <span>My Campaigns</span>
             </button>
           </Link>
-          <Link href="brand-owner/applications">
+          <Link href="/dashboard/brand-owner/messages">
             <button
-              onClick={() => setActiveTab("applications")}
+              onClick={() => setActiveTab("messages")}
               className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-                activeTab === "applications"
+                activeTab === "messages"
                   ? "bg-indigo-900/30 text-indigo-400"
                   : "hover:bg-slate-700/50"
               }`}
             >
-              <FiUsers className="flex-shrink-0" />
-              <span>Applications</span>
-              <span className="ml-auto bg-indigo-900/50 text-indigo-400 text-xs px-2 py-1 rounded-full">
-                24
-              </span>
+              <FiMessageSquare className="flex-shrink-0" />
+              <span>Messages</span>
+              {messages > 0 && (
+                <span className="ml-auto bg-red-900/50 text-red-400 text-xs px-2 py-1 rounded-full">
+                  {messages}
+                </span>
+              )}
             </button>
           </Link>
-          <button
-            onClick={() => setActiveTab("analytics")}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-              activeTab === "analytics"
-                ? "bg-indigo-900/30 text-indigo-400"
-                : "hover:bg-slate-700/50"
-            }`}
-          >
-            <FiBarChart2 className="flex-shrink-0" />
-            <span>Analytics</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("messages")}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-              activeTab === "messages"
-                ? "bg-indigo-900/30 text-indigo-400"
-                : "hover:bg-slate-700/50"
-            }`}
-          >
-            <FiMessageSquare className="flex-shrink-0" />
-            <span>Messages</span>
-            {messages > 0 && (
-              <span className="ml-auto bg-red-900/50 text-red-400 text-xs px-2 py-1 rounded-full">
-                {messages}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab("billing")}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-              activeTab === "billing"
-                ? "bg-indigo-900/30 text-indigo-400"
-                : "hover:bg-slate-700/50"
-            }`}
-          >
-            <FiDollarSign className="flex-shrink-0" />
-            <span>Billing</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-              activeTab === "settings"
-                ? "bg-indigo-900/30 text-indigo-400"
-                : "hover:bg-slate-700/50"
-            }`}
-          >
-            <FiSettings className="flex-shrink-0" />
-            <span>Settings</span>
-          </button>
+          <Link href="/dashboard/brand-owner/billing">
+            <button
+              onClick={() => setActiveTab("billing")}
+              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
+                activeTab === "billing"
+                  ? "bg-indigo-900/30 text-indigo-400"
+                  : "hover:bg-slate-700/50"
+              }`}
+            >
+              <FiDollarSign className="flex-shrink-0" />
+              <span>Billing</span>
+            </button>
+          </Link>
+          <Link href="/dashboard/brand-owner/settings">
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
+                activeTab === "settings"
+                  ? "bg-indigo-900/30 text-indigo-400"
+                  : "hover:bg-slate-700/50"
+              }`}
+            >
+              <FiSettings className="flex-shrink-0" />
+              <span>Settings</span>
+            </button>
+          </Link>
         </nav>
 
         {/* Footer */}

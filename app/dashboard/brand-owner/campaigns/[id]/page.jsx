@@ -9,31 +9,50 @@ import {
   FiUser,
   FiChevronRight,
   FiSearch,
-  FiEye,
-  FiBriefcase,
   FiArrowLeft,
+  FiX,
+  FiLink,
+  FiCheck,
+  FiExternalLink,
+  FiStar,
+  FiAward,
+  FiCheckCircle,
+  FiXCircle,
+  FiClock as FiPending,
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const JobDetailsPage = ({ params }) => {
   const router = useRouter();
   const [job, setJob] = useState(null);
+  const [applicants, setApplicants] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("overview"); // 'overview' or 'applicants'
+  const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
         const { id: jobsId } = await params;
-        const response = await fetch(
-          `/api/campaigns/${jobsId}?populate=applications`
+        const response = await fetch(`/api/campaigns/${jobsId}`);
+        const applresponse = await fetch(
+          `/api/applications/campaign/${jobsId}`
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch job details");
+        console.log(applresponse);
+
+        if (!response.ok) throw new Error("Failed to fetch job details");
+
+        if (applresponse.ok) {
+          const apply = await applresponse.json();
+          setApplicants(apply.applications);
         }
+
         const data = await response.json();
         setJob(data.campaign);
       } catch (err) {
@@ -44,8 +63,8 @@ const JobDetailsPage = ({ params }) => {
     };
 
     fetchJob();
-  }, [params.id]);
-  console.log(job);
+  }, [params]);
+
   const getSafeValue = (obj, path, defaultValue = "Not specified") => {
     const keys = path.split(".");
     let result = obj;
@@ -60,20 +79,89 @@ const JobDetailsPage = ({ params }) => {
     if (!dateString) return "Not specified";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
     });
   };
 
+  const handleStatusUpdate = async (applicationId, newStatus) => {
+    setIsUpdatingStatus(true);
+    try {
+      const response = await fetch(`/api/applications/${applicationId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      // Update local state
+      setApplicants((prev) =>
+        prev.map((app) =>
+          app._id === applicationId ? { ...app, status: newStatus } : app
+        )
+      );
+
+      if (selectedApplicant?._id === applicationId) {
+        setSelectedApplicant((prev) => ({ ...prev, status: newStatus }));
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "bg-yellow-500/10 text-yellow-400";
+      case "shortlisted":
+        return "bg-blue-500/10 text-blue-400";
+      case "rejected":
+        return "bg-red-500/10 text-red-400";
+      case "hired":
+        return "bg-green-500/10 text-green-400";
+      case "completed":
+        return "bg-purple-500/10 text-purple-400";
+      default:
+        return "bg-slate-700 text-slate-400";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return <FiPending className="mr-1.5" size={14} />;
+      case "shortlisted":
+        return <FiStar className="mr-1.5" size={14} />;
+      case "rejected":
+        return <FiXCircle className="mr-1.5" size={14} />;
+      case "hired":
+        return <FiCheckCircle className="mr-1.5" size={14} />;
+      case "completed":
+        return <FiAward className="mr-1.5" size={14} />;
+      default:
+        return null;
+    }
+  };
+
   const filteredApplicants =
-    job?.applications?.filter((applicant) => {
-      const nameMatch = applicant.influencer?.name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const emailMatch = applicant.influencer?.email
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      return nameMatch || emailMatch;
+    applicants?.filter((applicant) => {
+      const searchMatch =
+        applicant.influencer?.fullName
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        applicant.influencer?.email
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        applicant.title?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const statusMatch =
+        statusFilter === "all" || applicant.status === statusFilter;
+      return searchMatch && statusMatch;
     }) || [];
 
   if (loading) {
@@ -90,7 +178,7 @@ const JobDetailsPage = ({ params }) => {
         <p>Error loading job: {error}</p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600"
+          className="mt-4 px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
         >
           Go Back
         </button>
@@ -104,7 +192,7 @@ const JobDetailsPage = ({ params }) => {
         <p>Job not found</p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600"
+          className="mt-4 px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
         >
           Go Back
         </button>
@@ -116,34 +204,30 @@ const JobDetailsPage = ({ params }) => {
   const statusDisplay = status || "Draft";
 
   return (
-    <div className="bg-slate-900 min-h-screen text-slate-100 ">
-      <div className="">
+    <div className="bg-slate-900 min-h-screen text-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() => router.back()}
-            className="text-indigo-400 hover:text-indigo-300 flex items-center"
+            className="text-indigo-400 hover:text-indigo-300 flex items-center transition-colors"
           >
-            <FiArrowLeft className="mr-1" />
+            <FiArrowLeft className="mr-2" />
             Back to Jobs
           </button>
           <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              status === "active"
-                ? "bg-green-900/30 text-green-400"
-                : status === "draft"
-                ? "bg-yellow-900/30 text-yellow-400"
-                : "bg-slate-700 text-slate-400"
-            }`}
+            className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+              status
+            )}`}
           >
             {statusDisplay}
           </span>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-700 mb-6">
+        <div className="flex border-b border-slate-700 mb-8">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 font-medium ${
+            className={`px-6 py-3 font-medium text-sm tracking-wide transition-colors ${
               activeTab === "overview"
                 ? "text-indigo-400 border-b-2 border-indigo-400"
                 : "text-slate-400 hover:text-slate-300"
@@ -153,7 +237,7 @@ const JobDetailsPage = ({ params }) => {
           </button>
           <button
             onClick={() => setActiveTab("applicants")}
-            className={`px-4 py-2 font-medium ${
+            className={`px-6 py-3 font-medium text-sm tracking-wide transition-colors ${
               activeTab === "applicants"
                 ? "text-indigo-400 border-b-2 border-indigo-400"
                 : "text-slate-400 hover:text-slate-300"
@@ -400,78 +484,122 @@ const JobDetailsPage = ({ params }) => {
         ) : (
           <div className="bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden">
             <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-indigo-400">
-                  Applications
-                </h2>
-                <div className="relative w-64">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiSearch className="text-slate-400" />
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-white">
+                    <span className="text-indigo-400">
+                      {filteredApplicants.length}
+                    </span>{" "}
+                    Applications
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Showing {statusFilter === "all" ? "all" : statusFilter}{" "}
+                    applications
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiSearch className="text-slate-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search applications..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-slate-400 transition-all"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Search applications..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
-                  />
+
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="hired">Hired</option>
+                    <option value="completed">Completed</option>
+                  </select>
                 </div>
               </div>
 
               {filteredApplicants.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredApplicants.map((application) => (
                     <div
                       key={application._id}
-                      className="bg-slate-700/30 p-4 rounded-lg border border-slate-700 hover:border-indigo-500 transition-colors cursor-pointer"
-                      onClick={() =>
-                        router.push(`/brand/applications/${application._id}`)
-                      }
+                      className="group bg-slate-750 hover:bg-slate-700 p-4 rounded-xl border border-slate-700 hover:border-indigo-500/30 transition-all cursor-pointer shadow-sm"
+                      onClick={() => setSelectedApplicant(application)}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4 flex-1">
-                          <div className="bg-slate-700 w-10 h-10 rounded-full flex items-center justify-center mt-1">
-                            <FiUser className="text-indigo-400" size={18} />
+                        <div className="flex items-start space-x-4 flex-1 min-w-0">
+                          <div className="relative">
+                            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-12 h-12 rounded-full flex items-center justify-center mt-1 overflow-hidden">
+                              {application.influencer?.avatar ? (
+                                <img
+                                  src={application.influencer.avatar}
+                                  alt={application.influencer.fullName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <FiUser className="text-white" size={20} />
+                              )}
+                            </div>
+                            {application.status === "hired" && (
+                              <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5">
+                                <FiCheck className="text-white text-xs" />
+                              </div>
+                            )}
+                            {application.status === "completed" && (
+                              <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-0.5">
+                                <FiAward className="text-white text-xs" />
+                              </div>
+                            )}
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-medium">
-                                {application.influencer?.name ||
-                                  "Unknown Influencer"}
-                              </h3>
+                              <div>
+                                <h3 className="font-medium text-white truncate">
+                                  {application.influencer?.fullName ||
+                                    "Unknown Influencer"}
+                                </h3>
+                                {application.title && (
+                                  <p className="text-sm text-slate-400 truncate">
+                                    {application.title}
+                                  </p>
+                                )}
+                              </div>
                               <span
-                                className={`px-2 py-1 text-xs rounded-full capitalize ${getStatusColor(
+                                className={`px-2.5 py-1 text-xs rounded-full capitalize flex items-center ${getStatusColor(
                                   application.status
                                 )}`}
                               >
+                                {getStatusIcon(application.status)}
                                 {application.status}
                               </span>
                             </div>
-                            <p className="text-sm text-slate-400 flex items-center mt-1">
-                              <FiMail className="mr-1" size={14} />
-                              {application.influencer?.email ||
-                                "No email provided"}
-                            </p>
-                            {application.proposal && (
-                              <p className="text-slate-300 text-sm mt-2 line-clamp-2">
-                                {application.proposal}
-                              </p>
-                            )}
-                            <div className="flex items-center mt-3 space-x-4">
+                            <div className="flex flex-wrap items-center mt-3 gap-x-4 gap-y-2">
                               {application.quote && (
-                                <span className="flex items-center text-sm">
-                                  <FiDollarSign className="mr-1 text-indigo-400" />
-                                  {formatCurrency(application.quote)}
+                                <span className="flex items-center text-sm bg-slate-700/50 px-2.5 py-1 rounded-full">
+                                  <FiDollarSign
+                                    className="mr-1.5 text-indigo-400"
+                                    size={12}
+                                  />
+                                  {application.quote.toLocaleString()} ETB
                                 </span>
                               )}
                               <span className="flex items-center text-sm text-slate-400">
-                                <FiCalendar className="mr-1" />
+                                <FiCalendar className="mr-1.5" size={12} />
                                 Applied {formatDate(application.appliedAt)}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <FiChevronRight className="text-slate-400 ml-2 mt-1" />
+                        <FiChevronRight className="text-slate-500 group-hover:text-indigo-400 ml-2 mt-1 transition-colors" />
                       </div>
                     </div>
                   ))}
@@ -479,20 +607,242 @@ const JobDetailsPage = ({ params }) => {
               ) : (
                 <div className="text-center py-12">
                   <div className="mx-auto h-24 w-24 text-slate-600 mb-4 flex items-center justify-center">
-                    <FiUsers className="w-full h-full" />
+                    <FiUsers className="w-16 h-16 opacity-50" />
                   </div>
-                  <h3 className="text-lg font-thin text-slate-300 mb-1">
-                    {searchTerm
+                  <h3 className="text-lg font-medium text-slate-300 mb-1">
+                    {searchTerm || statusFilter !== "all"
                       ? "No matching applications found"
                       : "No applications yet"}
                   </h3>
-                  <p className="text-slate-500">
+                  <p className="text-slate-500 max-w-md mx-auto">
                     {searchTerm
-                      ? "Try a different search term"
-                      : "Your campaign hasn't received any applications yet"}
+                      ? "Try adjusting your search or filter to find what you're looking for."
+                      : statusFilter !== "all"
+                      ? `No ${statusFilter} applications at this time.`
+                      : "Check back later or share your campaign to attract more applicants."}
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Applicant Details Modal */}
+        {selectedApplicant && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div
+              className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-slate-800/90 backdrop-blur-sm p-4 border-b border-slate-700 flex justify-between items-center z-10">
+                <h2 className="text-xl font-semibold text-white">
+                  Application Details
+                </h2>
+                <button
+                  onClick={() => setSelectedApplicant(null)}
+                  className="text-slate-400 hover:text-white p-1 rounded-full transition-colors"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-6">
+                  <div className="relative">
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
+                      {selectedApplicant.influencer?.avatar ? (
+                        <img
+                          src={selectedApplicant.influencer.avatar}
+                          alt={selectedApplicant.influencer.fullName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="text-white" size={24} />
+                      )}
+                    </div>
+                    {selectedApplicant.status === "hired" && (
+                      <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                        <FiCheck className="text-white text-xs" />
+                      </div>
+                    )}
+                    {selectedApplicant.status === "completed" && (
+                      <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-1">
+                        <FiAward className="text-white text-xs" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          {selectedApplicant.influencer?.fullName ||
+                            "Unknown Influencer"}
+                        </h3>
+                        <p className="text-slate-400 flex items-center">
+                          <FiMail className="mr-2" />
+                          {selectedApplicant.influencer?.email ||
+                            "No email provided"}
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <select
+                          value={selectedApplicant.status}
+                          onChange={(e) =>
+                            handleStatusUpdate(
+                              selectedApplicant._id,
+                              e.target.value
+                            )
+                          }
+                          disabled={isUpdatingStatus}
+                          className={`px-3 py-1 rounded-lg text-sm font-medium border ${getStatusColor(
+                            selectedApplicant.status
+                          )} border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="shortlisted">Shortlisted</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="hired">Hired</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {selectedApplicant.title && (
+                      <div className="mt-2 bg-slate-750 inline-block px-3 py-1 rounded-lg">
+                        <p className="text-sm text-slate-300">
+                          {selectedApplicant.title}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-slate-750 p-4 rounded-lg">
+                    <h4 className="text-sm font-medium text-slate-400 mb-2">
+                      APPLICATION DATE
+                    </h4>
+                    <p className="text-white">
+                      {formatDate(selectedApplicant.appliedAt)}
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-750 p-4 rounded-lg">
+                    <h4 className="text-sm font-medium text-slate-400 mb-2">
+                      QUOTED RATE
+                    </h4>
+                    <p className="text-white">
+                      {selectedApplicant.quote
+                        ? `${selectedApplicant.quote.toLocaleString()} ETB`
+                        : "Not specified"}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedApplicant.proposal && (
+                  <div className="bg-slate-750 p-4 rounded-lg mb-6">
+                    <h4 className="text-sm font-medium text-slate-400 mb-2">
+                      PROPOSAL
+                    </h4>
+                    <p className="text-slate-300 whitespace-pre-line">
+                      {selectedApplicant.proposal}
+                    </p>
+                  </div>
+                )}
+
+                {selectedApplicant.portfolioLinks?.length > 0 && (
+                  <div className="bg-slate-750 p-4 rounded-lg mb-6">
+                    <h4 className="text-sm font-medium text-slate-400 mb-2">
+                      PORTFOLIO LINKS ({selectedApplicant.portfolioLinks.length}
+                      )
+                    </h4>
+                    <ul className="space-y-2">
+                      {selectedApplicant.portfolioLinks.map((link, index) => (
+                        <li key={index} className="flex items-center">
+                          <FiLink className="text-indigo-400 mr-2 flex-shrink-0" />
+                          <a
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-400 hover:text-indigo-300 hover:underline truncate transition-colors"
+                          >
+                            {link}
+                          </a>
+                          <FiExternalLink
+                            className="text-slate-500 ml-1"
+                            size={12}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 pt-6 border-t border-slate-700">
+                  <Link
+                    href={`/influencer/profile/${selectedApplicant.influencer?._id}`}
+                    className="flex items-center justify-center px-4 py-2.5 border border-slate-600 hover:border-indigo-400 text-indigo-400 hover:text-indigo-300 rounded-lg transition-colors"
+                  >
+                    View Full Profile
+                  </Link>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setSelectedApplicant(null)}
+                      className="px-6 py-2.5 border border-slate-600 hover:border-slate-500 text-white rounded-lg transition-colors"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleStatusUpdate(selectedApplicant._id, "hired")
+                      }
+                      disabled={
+                        isUpdatingStatus || selectedApplicant.status === "hired"
+                      }
+                      className={`px-6 py-2.5 rounded-lg font-medium flex items-center justify-center transition-colors ${
+                        selectedApplicant.status === "hired"
+                          ? "bg-green-600/50 text-green-200 cursor-not-allowed"
+                          : isUpdatingStatus
+                          ? "bg-indigo-600/70 text-white cursor-wait"
+                          : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      }`}
+                    >
+                      {isUpdatingStatus ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Processing...
+                        </>
+                      ) : selectedApplicant.status === "hired" ? (
+                        "Already Hired"
+                      ) : (
+                        "Hire This Influencer"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -1,16 +1,20 @@
-import { connectDB } from "@/config/database";
+import connectDB from "@/config/database";
 import Application from "@/models/Application";
 import Influencer from "@/models/Influencer";
 import { NextResponse } from "next/server";
-import { getUserIdFromToken } from "@/utils/auth";
+// import { getUserIdFromToken } from "@/utils/auth";
+import AuthUtils from "@/lib/authUtils";
 
 export async function PATCH(req, { params }) {
   await connectDB();
   const { id } = await params;
 
   try {
-    const token = req.headers.get("authorization");
-    const { userId } = getUserIdFromToken(token);
+    // console.log("User ID from token:", id);
+    // const token = req.headers.get("authorization");
+    // const { userId } = getUserIdFromToken(token);
+    const { id: userId } = await AuthUtils.getUserInfo(req);
+    console.log("User ID from token:", userId);
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized access." },

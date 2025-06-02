@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import PricingPlan from "@/models/PricingPlan";
+import Plan from "@/models/Plan";
 import connectDB from "@/config/database";
-import { getUserIdFromToken } from "@/utils/auth";
+import AuthUtils from "@/lib/authUtils";
 
-// GET all pricing plans
-export async function GET() {
+export async function GET(req) {
   try {
     await connectDB();
 
-    const plans = await PricingPlan.find().sort({ price: 1 });
+    const plans = await Plan.find().sort({ price: 1 });
     return NextResponse.json({ success: true, plans }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -22,8 +21,10 @@ export async function GET() {
 export async function POST(request) {
   try {
     await connectDB();
-    const token = request.headers.get("authorization");
-    const { role } = await getUserIdFromToken(token);
+
+    const { isValid, userInfo, errorResponse } =
+      await AuthUtils.validateRequest(req);
+    const { role } = userInfo;
     if (role !== "admin") {
       return NextResponse.json(
         { error: "Unauthorized access." },
@@ -41,7 +42,7 @@ export async function POST(request) {
       );
     }
 
-    const newPlan = await PricingPlan.create(planData);
+    const newPlan = await Plan.create(planData);
     return NextResponse.json(newPlan, { status: 201 });
   } catch (error) {
     return NextResponse.json(
