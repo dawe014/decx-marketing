@@ -1,59 +1,17 @@
-import connectDB from "@/config/database"; // your MongoDB connection util
+import connectDB from "@/config/database";
 import Application from "@/models/Application";
 import { NextResponse } from "next/server";
-import Campaign from "@/models/Campaign";
-import Influencer from "@/models/Influencer";
-import { getUserIdFromToken } from "@/utils/auth";
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { id: campaignId } = await params;
-    /*
-    const token = req.headers.get("authorization");
-
-    const { userId } = getUserIdFromToken(token);
-    if (!userId) {
+    if (!campaignId) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "You are not logged in, Please login and try again",
-        },
-        { status: 401 }
+        { success: false, message: "Campaign ID is required" },
+        { status: 400 }
       );
     }
-    const brand = await Brand.findOne({ user: userId });
-    if (!brand) {
-      return NextResponse.json(
-        { message: "Brand not found for this user" },
-        { status: 404 }
-      );
-    }
-
-    const campaign = await Campaign.findId(campaignId);
-    if (!campaign) {
-      return NextResponse.json(
-        { success: false, message: "Campaign not found" },
-        { status: 404 }
-      );
-    }
-    // Authorization: only brand owner can update the campaign
-    if (String(brand._id) !== String(campaign.brand)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "You are not authorized to view applications for this campaign",
-        },
-        { status: 403 }
-      );
-    }
-    */
-
-    // Fetch all applications for the given campaignId
-    // {
-    //   campaign: campaignId;
-    // }
     const applications = await Application.find({
       campaign: campaignId,
     }).populate("influencer");

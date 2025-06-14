@@ -2,8 +2,7 @@ import dbConnect from "@/config/database"; // Database connection utility
 import Campaign from "@/models/Campaign"; // Campaign model
 import Brand from "@/models/Brand"; // Brand model
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils"; // Utility for authentication
 
 export async function POST(req) {
   try {
@@ -11,11 +10,10 @@ export async function POST(req) {
     await dbConnect();
 
     // Get the authorization token from the request headers
-    const token = await getToken({ req, secret });
-    const { id, role } = token;
-    if (!token) {
+    const { id } = await AuthUtils.getUserInfo(req);
+    if (!id) {
       return NextResponse.json(
-        { message: "Authorization token is required" },
+        { error: "Unauthorized access" },
         { status: 401 }
       );
     }
@@ -56,15 +54,60 @@ export async function POST(req) {
   }
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
-    // Connect to the database
     await dbConnect();
 
-    const campaigns = await Campaign.find()
-      .populate("brand") // Populate the brand associated with the campaign
-      .sort({ createdAt: -1 }); // Sort the campaigns in descending order of creation
-    return NextResponse.json({ success: true, campaigns }, { status: 200 });
+    const { searchParams } = new URL(request.url);
+
+    const search = searchParams.get("search") || "";
+    const niche = searchParams.get("niche") || "";
+    const language = searchParams.get("language") || "";
+    const price = parseInt(searchParams.get("price") || "0", 10);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = 10;
+
+    const query = { status: "active" };
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { niches: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (niche) {
+      query.niches = niche;
+    }
+
+    if (language) {
+      query.targetLanguages = language;
+    }
+
+    if (price > 0) {
+      query["budget.min"] = { $gte: price };
+    }
+
+    const totalCampaigns = await Campaign.countDocuments(query);
+    const totalPages = Math.ceil(totalCampaigns / limit);
+
+    const campaigns = await Campaign.find(query)
+      .populate("brand", "companyName")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return NextResponse.json(
+      {
+        success: true,
+        campaigns,
+        totalCampaigns,
+        currentPage: page,
+        totalPages,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching campaigns:", error);
     return NextResponse.json(

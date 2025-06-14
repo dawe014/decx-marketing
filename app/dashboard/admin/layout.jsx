@@ -142,48 +142,6 @@ export default function AdminDashboardLayout({ children }) {
               <span>E-Magazine</span>
             </button>
           </Link>
-          <Link href="/dashboard/admin/reports">
-            <button
-              onClick={() => setActiveTab("reports")}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-                activeTab === "reports"
-                  ? "bg-indigo-900/30 text-indigo-400"
-                  : "hover:bg-slate-700/50"
-              }`}
-            >
-              <FiBarChart2 className="flex-shrink-0" />
-              <span>Reports</span>
-            </button>
-          </Link>
-          <Link href="/dashboard/admin/moderation">
-            <button
-              onClick={() => setActiveTab("moderation")}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-                activeTab === "moderation"
-                  ? "bg-indigo-900/30 text-indigo-400"
-                  : "hover:bg-slate-700/50"
-              }`}
-            >
-              <FiFlag className="flex-shrink-0" />
-              <span>Moderation</span>
-              <span className="ml-auto bg-yellow-900/50 text-yellow-400 text-xs px-2 py-1 rounded-full">
-                7
-              </span>
-            </button>
-          </Link>
-          <Link href="/dashboard/admin/settings">
-            <button
-              onClick={() => setActiveTab("settings")}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${
-                activeTab === "settings"
-                  ? "bg-indigo-900/30 text-indigo-400"
-                  : "hover:bg-slate-700/50"
-              }`}
-            >
-              <FiShield className="flex-shrink-0" />
-              <span>System Settings</span>
-            </button>
-          </Link>
         </nav>
 
         {/* Footer */}
@@ -250,9 +208,6 @@ export default function AdminDashboardLayout({ children }) {
               {activeTab === "users" && "User Management"}
               {activeTab === "campaigns" && "Campaign Management"}
               {activeTab === "e-magazine" && "Manage Articles"}
-              {activeTab === "reports" && "Platform Reports"}
-              {activeTab === "moderation" && "Content Moderation"}
-              {activeTab === "settings" && "System Settings"}
             </h1>
 
             <div className="flex space-x-3">

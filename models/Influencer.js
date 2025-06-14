@@ -90,6 +90,7 @@ const influencerSchema = new mongoose.Schema(
     availability: {
       type: String,
       enum: ["available", "limited", "unavailable"],
+      default: "available",
     },
     services: [
       {

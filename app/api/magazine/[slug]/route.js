@@ -1,4 +1,3 @@
-// src/app/api/magazine/[slug]/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/config/database";
 import Article from "@/models/Magazine";
@@ -16,9 +15,6 @@ export async function GET(request, { params }) {
         { status: 404 }
       );
     }
-
-    // Convert MongoDB Date to ISO string
-    // article.createdAt = article.createdAt.toISOString();
 
     return NextResponse.json(article);
   } catch (error) {

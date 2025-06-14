@@ -2,13 +2,18 @@ import dbConnect from "@/config/database";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 import Influencer from "@/models/Influencer";
-import { getToken } from "next-auth/jwt";
-
+import AuthUtils from "@/lib/authUtils";
 export async function POST(req, { params }) {
   try {
     await dbConnect();
-    const token = await getToken({ req, secret });
-    const { id, role } = token;
+    const { id, role } = await AuthUtils.getUserInfo(req);
+    if (!id) {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
+
     const { userId } = await params;
     const body = await req.json();
     console.log("requested body", body);
@@ -69,12 +74,8 @@ export async function POST(req, { params }) {
 export async function GET(req, { params }) {
   await dbConnect();
   try {
-    console.log("influencer");
     const { userId } = await params;
-    console.log(userId);
-    const influencer = await Influencer.findOne({ user: userId });
-    console.log("influencer from bottom");
-    console.log(influencer);
+    const influencer = await Influencer.findById(userId);
     if (!influencer) {
       return NextResponse.json(
         {
@@ -83,14 +84,11 @@ export async function GET(req, { params }) {
         { status: 400 }
       );
     }
-    return NextResponse.json(
-      { success: true, message: influencer },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, influencer }, { status: 200 });
   } catch (error) {
     console.log("Error occured", error);
     return NextResponse.json(
-      { success: true, message: influencer },
+      { success: false, message: error.message },
       { status: 200 }
     );
   }

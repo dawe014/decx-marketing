@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Campaign from "@/models/Campaign";
-import Brand from "@/models/Brand";
-import Application from "@/models/Application";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils"; // Utility for authentication
 
 // UPDATE Campaign - only provided fields
 export async function PATCH(req, { params }) {
   try {
     await dbConnect();
-    const token = await getToken({ req, secret });
-    const { id } = token;
+    const { id } = await AuthUtils.getUserInfo(req);
+    if (!id) {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
+
     const { id: campaignId } = await params;
     const body = await req.json();
     // Check if data is empty (no keys) or undefined
@@ -61,8 +64,7 @@ export async function PATCH(req, { params }) {
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    const token = await getToken({ req, secret });
-    const { id } = token;
+
     const { id: campaignId } = await params;
 
     const campaign = await Campaign.findById(campaignId).populate("brand");
@@ -74,18 +76,18 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Authorization: only brand owner can update
-    if (!campaign.brand.user.equals(id)) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-    }
+    const data = await Campaign.findById(campaignId)
+      .populate({
+        path: "brand",
+      })
+      .populate({
+        path: "applications.application",
+        populate: {
+          path: "influencer",
+          model: "Influencer",
+        },
+      });
 
-    const data = await Campaign.findById(campaignId).populate({
-      path: "applications.application",
-      populate: {
-        path: "influencer",
-        model: "Influencer",
-      },
-    });
     return NextResponse.json({ campaign: data }, { status: 200 });
   } catch (error) {
     console.error("Fetching campaign error:", error);
@@ -100,8 +102,14 @@ export async function DELETE(req, { params }) {
   try {
     await dbConnect();
     const { id: campaignId } = await params;
-    const token = await getToken({ req, secret });
-    const { id, role } = token;
+    const { id, role } = await AuthUtils.getUserInfo(req);
+    if (!id) {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
+
     const campaign = await Campaign.findById(campaignId).populate("brand");
 
     if (!campaign) {

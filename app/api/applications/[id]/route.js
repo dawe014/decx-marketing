@@ -2,7 +2,6 @@ import connectDB from "@/config/database";
 import Application from "@/models/Application";
 import Influencer from "@/models/Influencer";
 import { NextResponse } from "next/server";
-// import { getUserIdFromToken } from "@/utils/auth";
 import AuthUtils from "@/lib/authUtils";
 
 export async function PATCH(req, { params }) {
@@ -10,21 +9,20 @@ export async function PATCH(req, { params }) {
   const { id } = await params;
 
   try {
-    // console.log("User ID from token:", id);
-    // const token = req.headers.get("authorization");
-    // const { userId } = getUserIdFromToken(token);
     const { id: userId } = await AuthUtils.getUserInfo(req);
     console.log("User ID from token:", userId);
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized access." },
         { status: 401 }
       );
     }
+
     const influencer = await Influencer.findOne({ user: userId });
     if (!influencer) {
       return NextResponse.json(
-        { error: "Influencer not found" },
+        { error: "Influencer not found." },
         { status: 404 }
       );
     }
@@ -32,10 +30,11 @@ export async function PATCH(req, { params }) {
     const application = await Application.findById(id);
     if (!application) {
       return NextResponse.json(
-        { error: "Application not found" },
+        { error: "Application not found." },
         { status: 404 }
       );
     }
+
     if (String(application.influencer) !== String(influencer._id)) {
       return NextResponse.json(
         { error: "Unauthorized access." },
@@ -43,29 +42,27 @@ export async function PATCH(req, { params }) {
       );
     }
 
-    const { proposal, qoute } = await req.json();
+    const body = await req.json();
+    console.log("body", body);
+    const { proposal, quote, portfolioLinks } = body;
 
-    const data = {};
-    if (proposal !== undefined) data.proposal = proposal;
-    if (qoute !== undefined) data.qoute = qoute;
+    if (proposal !== undefined) application.proposal = proposal;
+    if (quote !== undefined) application.quote = Number(quote);
+    if (portfolioLinks !== undefined)
+      application.portfolioLinks = portfolioLinks;
 
-    const updated = await Application.findByIdAndUpdate(id, data, {
-      new: true,
-    });
-
-    if (!updated) {
-      return NextResponse.json(
-        { error: "Application not found" },
-        { status: 404 }
-      );
-    }
+    await application.save();
 
     return NextResponse.json(
-      { message: "Application updated successfully", application: updated },
+      { message: "Application updated successfully", application },
       { status: 200 }
     );
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error(err);
+    return NextResponse.json(
+      { error: "Server error: " + err.message },
+      { status: 500 }
+    );
   }
 }
 export async function DELETE(req, { params }) {
@@ -73,8 +70,8 @@ export async function DELETE(req, { params }) {
   const { id } = await params;
 
   try {
-    const token = req.headers.get("authorization");
-    const { userId } = getUserIdFromToken(token);
+    const { id: userId } = await AuthUtils.getUserInfo(req);
+
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized access." },
@@ -117,5 +114,37 @@ export async function DELETE(req, { params }) {
     );
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function GET(req, { params }) {
+  try {
+    await connectDB();
+
+    const { id } = await params;
+    const app = await Application.findById(id);
+    console.log(app);
+
+    const application = await Application.findById(id).populate("influencer");
+
+    if (!application) {
+      return NextResponse.json(
+        { success: false, message: "No applications found" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json(
+      {
+        success: true,
+        application,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("�� Error fetching applications:", error);
+    return NextResponse.json(
+      { success: false, message: error },
+      { status: 500 }
+    );
   }
 }

@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/database"; // Database connection utility
 import Thread from "@/models/Thread";
-import Message from "@/models/Message";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils";
 
 export async function GET(req, { params }) {
   await dbConnect();
   const threadId = await params;
-  const token = await getToken({ req, secret });
-  const { id, role } = token;
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await AuthUtils.getUserInfo(req);
+  if (!id) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
   }
 
   try {
@@ -38,10 +35,9 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   await dbConnect();
   const threadId = await params;
-  const token = await getToken({ req, secret });
-  const { id, role } = token;
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await AuthUtils.getUserInfo(req);
+  if (!id) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
   }
 
   try {

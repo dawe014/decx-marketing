@@ -1,25 +1,32 @@
 import mongoose from "mongoose";
 
-const subscriptionHistorySchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+const SubscriptionHistorySchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    oldPlan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
+    },
+    newPlan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
+    },
+    action: {
+      type: String,
+      enum: ["initial", "upgrade", "downgrade", "cancel"],
+      required: true,
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  oldPlan: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SubscriptionPlan",
-  },
-  newPlan: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SubscriptionPlan",
-  },
-  changedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
-const SubscriptionHistory =
-  mongoose.models.SubscriptionHistory ||
-  mongoose.model("SubscriptionHistory", subscriptionHistorySchema);
-export default SubscriptionHistory;
+export default mongoose.models.SubscriptionHistory ||
+  mongoose.model("SubscriptionHistory", SubscriptionHistorySchema);

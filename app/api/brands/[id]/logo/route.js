@@ -17,7 +17,6 @@ export async function PATCH(req, { params }) {
         { status: 400 }
       );
     }
-    console.log(file);
 
     // Call utility function to handle file upload
     const { url: fileUrl } = await handleMediaUpload(file, "logo");

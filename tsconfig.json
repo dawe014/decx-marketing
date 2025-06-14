@@ -31,7 +31,12 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/influencers/[id]/page.jsx",
-    "app/influencers/[id]/Modal.jsx"
+    "app/influencers/[id]/Modal.jsx",
+    "app/(decx)/find-influencer/[id]/page.jsx",
+    "app/(decx)/find-influencer/[id]/page.jsx",
+    "app/(decx)/find-influencer/page.jsx",
+    "app/post-need/[id]/page.jsx",
+    "app/post-need/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

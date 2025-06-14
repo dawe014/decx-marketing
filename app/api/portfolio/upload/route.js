@@ -1,43 +1,36 @@
 import { NextResponse } from "next/server";
 import { handleMediaUpload } from "@/lib/upload";
-import { getToken } from "next-auth/jwt";
+import AuthUtils from "@/lib/authUtils";
 import Influencer from "@/models/Influencer";
 import dbConnect from "@/config/database";
-
-const secret = process.env.NEXTAUTH_SECRET;
 
 export async function PATCH(req) {
   try {
     await dbConnect();
-    const token = await getToken({ req, secret });
-
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = token;
-
-    console.log("form Data");
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo;
     const formData = await req.formData();
-    console.log("form Data", formData);
-    // Extract all portfolio items from formData
     const portfolioItems = [];
 
     let index = 0;
     while (true) {
       const fileKey = `portfolioItem-${index}-file`;
+      const titleKey = `portfolioItem-${index}-title`; // <-- Key for the new title
       const descKey = `portfolioItem-${index}-description`;
 
       const file = formData.get(fileKey);
+      const title = formData.get(titleKey)?.toString(); // <-- Get the title
       const description = formData.get(descKey)?.toString();
 
-      if (!file || !description) {
+      // Updated check to include title
+      if (!file || !title || !description) {
         break; // End of items
       }
 
       const upload = await handleMediaUpload(file, "uploads");
-      console.log("uploaded", upload);
+
       portfolioItems.push({
+        title, // <-- Add title to the object
         description,
         mediaUrl: upload.url,
         mediaType: upload.type,
@@ -49,13 +42,13 @@ export async function PATCH(req) {
 
     if (portfolioItems.length === 0) {
       return NextResponse.json(
-        { message: "No portfolio items found" },
+        { message: "No complete portfolio items found to upload." },
         { status: 400 }
       );
     }
-    console.log("this portifolio items", portfolioItems);
+
     // Save all portfolio items to user's profile
-    const influencer = await Influencer.updateOne(
+    await Influencer.updateOne(
       { user: id },
       {
         $push: {
@@ -63,7 +56,7 @@ export async function PATCH(req) {
         },
       }
     );
-    console.log("This is from portfolio upload api", influencer);
+
     return NextResponse.json({ message: "Upload successful", portfolioItems });
   } catch (error) {
     console.error("Upload error:", error);

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Article from "@/models/Magazine";
-import Category from "@/models/Category";
 
 // POST /api/articles - Create a new article
 export async function POST(req) {
@@ -10,19 +9,8 @@ export async function POST(req) {
 
     const body = await req.json();
 
-    // // Optionally extract author from token
-    // const token = req.headers.get("authorization");
-    // const { userId: authorId, role } = await getUserIdFromToken(token); // Assuming this returns user ID
-    // if (role !== "admin") {
-    //   return NextResponse.json(
-    //     { success: false, message: "User not authorized" },
-    //     { status: 401 }
-    //   );
-    // }
-    // Construct new article object
     const newArticle = new Article({
       ...body,
-      // author: authorId, // Optionally overwrite if author is from token
     });
 
     const savedArticle = await newArticle.save();
@@ -53,32 +41,51 @@ export async function POST(req) {
   }
 }
 
-// GET /api/articles - Fetch all articles
-
 export async function GET(request) {
   await dbConnect();
 
   const { searchParams } = new URL(request.url);
   const isFeatured = searchParams.get("featured");
+  const search = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = 10;
 
   try {
+    // Handle featured articles separately
     if (isFeatured === "true") {
       const featuredArticles = await Article.find({ featured: true }).sort({
-        createdAt: -1,
+        publishedAt: -1,
       });
       return Response.json({ articles: featuredArticles });
     }
 
-    // Default: return all
-    const [featuredArticles, latestArticles, categories] = await Promise.all([
-      Article.find({ featured: true }).sort({ createdAt: -1 }),
-      Article.find({}).sort({ createdAt: -1 }).limit(6),
-      Category.find({}),
-    ]);
-    const cate = await Category.find({});
-    return Response.json({ featuredArticles, latestArticles, categories });
+    // Build query
+    const query = { status: "published" };
+
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+
+    if (category) {
+      query.categories = category;
+    }
+
+    const totalArticles = await Article.countDocuments(query);
+    const totalPages = Math.ceil(totalArticles / limit);
+
+    const articles = await Article.find(query)
+      .sort({ publishedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return Response.json({
+      articles,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("API error:", error);
     return new Response("Internal Server Error", { status: 500 });
   }
 }

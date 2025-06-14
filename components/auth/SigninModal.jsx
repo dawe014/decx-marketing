@@ -2,24 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
 import { Alert } from "@/components/Alert";
-import { signIn } from "next-auth/react";
 
-const SigninModal = ({ children, isOpen }) => {
+const SigninModal = ({ isOpen, children }) => {
   const router = useRouter();
   const [alertState, setAlertState] = useState(null);
-  const handleSigninInputChange = (e) => {
-    const { name, value } = e.target;
-    setSigninData((prev) => ({ ...prev, [name]: value }));
-  };
   const [signinData, setSigninData] = useState({
     email: "",
     password: "",
   });
 
+  const handleSigninInputChange = (e) => {
+    const { name, value } = e.target;
+    setSigninData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSigninSubmit = async (e) => {
     e.preventDefault();
-    if (!signinData.password && !signinData.email) {
+    if (!signinData.email || !signinData.password) {
       setAlertState({
         showAlert: true,
         message: "All fields are required",
@@ -27,49 +28,66 @@ const SigninModal = ({ children, isOpen }) => {
       });
       return;
     }
-    console.log(signinData);
-    const data = await signIn("credentials", {
-      redirect: false, // disable auto-redirect
-      email: signinData.email,
-      password: signinData.password,
-    });
-    // const data = await fetch("/api/auth/login", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(signinData),
-    //   credentials: "include", // 👈 Very important to include cookies!
-    // });
-    console.log("the returned data", data);
-    if (data.error) {
+
+    try {
+      const data = await signIn("credentials", {
+        redirect: false,
+        email: signinData.email,
+        password: signinData.password,
+      });
+
+      if (data.error) {
+        setAlertState({
+          showAlert: true,
+          message: "Invalid email or password",
+          type: "error",
+        });
+        return;
+      }
+
+      // Get session to retrieve user ID
+      const session = await getSession();
+      const userId = session?.user?.id;
+
+      if (userId) {
+        // Call redirect-check API
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+        const res = await fetch(`${baseUrl}/api/auth/redirect-check/${userId}`);
+        const responseData = await res.json();
+
+        if (responseData.redirect) {
+          setAlertState({
+            showAlert: true,
+            message: `Logged in successfully, redirecting...`,
+            type: "success",
+          });
+          router.push(responseData.redirect); // Client-side redirect
+        } else {
+          setAlertState({
+            showAlert: true,
+            message: "Logged in, but no redirect path provided",
+            type: "warning",
+          });
+          router.push("/"); // Fallback redirect
+        }
+      } else {
+        console.warn("User ID not found in session");
+        setAlertState({
+          showAlert: true,
+          message: "Logged in, but user ID not available",
+          type: "warning",
+        });
+        router.push("/dashboard"); // Fallback redirect
+      }
+    } catch (error) {
+      console.error("Sign-in or redirect-check error:", error);
       setAlertState({
         showAlert: true,
-        message: "Invalid email or password",
+        message: "An error occurred during sign-in or redirection",
         type: "error",
       });
-      return;
     }
-    // const response = await data.json();
-    // console.log("the response is", response);
-    // router.replace(response.redirectTo);
-    // if (response.success) {
-    //   router.push(response.redirectTo);
-    // } else {
-    //   console.error("Redirect failed, response was not successful.");
-    // }
-    if (data.error) {
-      setAlertState({
-        showAlert: true,
-        message: "Logged in successfully",
-        type: "success",
-      });
-    }
-    console.log("before redirect");
-    router.push("/redirect");
-    console.log("after redirect");
-
-    // console.log("Response:", response);
   };
 
   if (!isOpen) return null;
@@ -80,15 +98,13 @@ const SigninModal = ({ children, isOpen }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
           <button
-            onClick={() => {
-              router.push("/");
-            }}
+            onClick={() => router.push("/")}
             className="text-gray-400 hover:text-white transition-colors text-xl focus:outline-none"
+            aria-label="Close sign-in modal"
           >
             ✕
           </button>
         </div>
-        {children}
         {alertState?.showAlert && (
           <Alert
             message={alertState.message}
@@ -97,6 +113,7 @@ const SigninModal = ({ children, isOpen }) => {
             duration={5000}
           />
         )}
+        {children}
         <div className="flex items-center my-6">
           <div className="flex-1 h-px bg-gray-700"></div>
           <span className="px-4 text-gray-400 text-sm">OR</span>
@@ -146,6 +163,7 @@ const SigninModal = ({ children, isOpen }) => {
 
             <button
               type="button"
+              onClick={() => router.push("/forgot-password")}
               className="text-sm text-primary hover:text-primary/80"
             >
               Forgot password?
@@ -163,9 +181,7 @@ const SigninModal = ({ children, isOpen }) => {
         <div className="mt-6 text-center text-sm text-gray-400">
           Don't have an account?{" "}
           <button
-            onClick={() => {
-              router.push("/signup");
-            }}
+            onClick={() => router.push("/signup")}
             className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Sign up

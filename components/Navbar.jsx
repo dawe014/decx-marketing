@@ -67,14 +67,12 @@ export default function Navbar() {
                     Find Influencer
                   </Link>
                   <Link
-                    href="/post-need"
+                    href="/jobs"
                     className={`${
-                      pathname === "/post-need"
-                        ? "text-primary"
-                        : "text-textPrimary"
+                      pathname === "/jobs" ? "text-primary" : "text-textPrimary"
                     } hover:text-primary rounded-md px-3 py-2`}
                   >
-                    Post a Need
+                    Find Jobs
                   </Link>
                   <Link
                     href="/pricing"

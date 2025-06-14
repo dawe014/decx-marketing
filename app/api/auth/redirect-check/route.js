@@ -2,19 +2,15 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Influencer from "@/models/Influencer";
 import Brand from "@/models/Brand";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils";
 
 export async function GET(req) {
   await dbConnect();
-  const token = await getToken({ req, secret });
-  console.log("JSON Web Token", token);
-
-  if (!token) {
-    throw new Error("Access token is missing");
+  const { userInfo } = await AuthUtils.validateRequest(req);
+  const { id, role } = userInfo;
+  if (!id) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
   }
-
-  const { id, role } = token;
 
   if (role === "admin") {
     return NextResponse.json({ redirect: "/dashboard/admin" });
@@ -25,7 +21,7 @@ export async function GET(req) {
     const existingInfluencer = await Influencer.findOne({ user: id });
     if (existingInfluencer) {
       return NextResponse.json({
-        redirect: `/profile/${existingInfluencer._id}`,
+        redirect: `/profile`,
       });
     } else {
       console.log("this is from else of influencer");

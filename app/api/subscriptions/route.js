@@ -7,8 +7,7 @@ import AuthUtils from "@/lib/authUtils";
 export async function POST(request) {
   try {
     await connectDB();
-    const { isValid, userInfo, errorResponse } =
-      await AuthUtils.validateRequest(request);
+    const { userInfo } = await AuthUtils.validateRequest(request);
     const { id: userId, role } = userInfo;
 
     const { planId } = await request.json();

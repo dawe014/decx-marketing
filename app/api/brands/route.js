@@ -1,8 +1,7 @@
 import dbConnect from "@/config/database";
 import { NextResponse } from "next/server";
 import Brand from "@/models/Brand";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils";
 
 // Fetch brand data from the database
 export async function GET() {
@@ -25,8 +24,14 @@ export async function POST(req) {
   try {
     // Ensure DB connection is established
     await dbConnect();
-    const token = await getToken({ req, secret });
-    const { id: userId, role } = token;
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    if (!userInfo || !userInfo.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    const { id: userId, role } = userInfo; // Extract user ID and role from userInfo
     // Extract the JWT token from Authorization header
 
     if (!token) {

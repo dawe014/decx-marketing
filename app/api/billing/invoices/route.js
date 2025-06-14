@@ -1,24 +1,19 @@
 import { NextResponse } from "next/server";
-import Invoice from "@/models/Invoice";
 import connectDB from "@/config/database";
+import Invoice from "@/models/Invoice";
 import AuthUtils from "@/lib/authUtils";
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
-    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { userInfo } = await AuthUtils.validateRequest(request);
     const { id: userId } = userInfo;
 
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const invoices = await Invoice.find({ userId }).sort({ createdAt: -1 });
 
-    const invoices = await Invoice.find({ userId });
-    return NextResponse.json(invoices);
+    return NextResponse.json(invoices, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch invoices" },
-      { status: 500 }
-    );
+    console.error("Invoices error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
