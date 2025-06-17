@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import dbConnect from "@/config/database";
 import User from "@/models/User";
-
+// handler function
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     GoogleProvider({
