@@ -53,84 +53,99 @@ const InfluencerCard = ({ influencer }) => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700 hover:border-indigo-500/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-900/40 group">
+    // Main container with subtle glow on hover for a premium feel
+    <div className="relative bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 group transition-all duration-300 hover:border-indigo-500/80 hover:shadow-2xl hover:shadow-indigo-900/50">
+      {/* Featured Badge */}
       {influencer.isFeatured && (
-        <div className="absolute top-4 right-4 bg-indigo-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md z-10">
+        <div className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl z-10">
+          <FiStar className="inline-block -mt-1 mr-1.5" size={12} />
           Featured
         </div>
       )}
-      <div className="p-6 flex flex-col h-full">
-        <div className="flex flex-col items-center mb-4 flex-grow">
-          <div className="relative w-28 h-28 mb-4">
+
+      {/* Main content flex container */}
+      <div className="p-5 flex flex-col h-full">
+        {/* 1. HEADER: Image, Name, and Rating */}
+        <div className="flex items-center gap-4 mb-5">
+          <div className="relative w-20 h-20 flex-shrink-0">
             <Image
               src={influencer.profilePhoto || "/default-profile.png"}
               alt={influencer.fullName}
               fill
-              className="rounded-full object-cover border-4 border-slate-700 group-hover:border-indigo-500 transition-all duration-300"
+              className="rounded-full object-cover border-2 border-slate-700 group-hover:border-indigo-500 transition-colors"
             />
           </div>
-          <h2 className="text-2xl font-bold text-white text-center">
-            {influencer.fullName}
-          </h2>
-          <div className="flex items-center mt-2 text-yellow-400">
-            <FiStar className="fill-current" />
-            <span className="text-white font-semibold ml-1.5">
-              {influencer.rating.average.toFixed(1)} ({influencer.rating.count})
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-white leading-tight">
+              {influencer.fullName}
+            </h2>
+            <div className="flex items-center mt-1.5 text-sm text-slate-400">
+              <FiStar className="text-yellow-400 fill-current" />
+              <span className="text-white font-semibold ml-1.5">
+                {influencer.rating.average.toFixed(1)}
+              </span>
+              <span className="ml-1">({influencer.rating.count} reviews)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. BODY: Details and Niches (takes up remaining space) */}
+        <div className="flex-grow space-y-4 text-slate-300 text-sm">
+          <div className="flex items-center gap-3">
+            <FiMapPin className="text-indigo-400 flex-shrink-0" size={16} />
+            <span className="truncate">
+              {influencer.location.city}, {influencer.location.country}
             </span>
           </div>
-          <div className="flex flex-wrap gap-2 justify-center my-4">
-            {influencer.niches.slice(0, 2).map((niche, i) => (
+          <div className="flex items-center gap-3">
+            <FiGlobe className="text-indigo-400 flex-shrink-0" size={16} />
+            <span className="truncate">
+              {influencer.languages?.map((l) => l.name).join(", ")}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {influencer.niches.slice(0, 3).map((niche, i) => (
               <span
                 key={i}
-                className="bg-slate-700/50 text-indigo-300 text-xs font-medium px-3 py-1 rounded-full border border-slate-600"
+                className="bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-full"
               >
                 {niche}
               </span>
             ))}
           </div>
-          <div className="flex flex-col space-y-2 w-full text-slate-300 text-sm">
-            <div className="flex items-center gap-2">
-              <FiMapPin className="text-indigo-400 flex-shrink-0" />
-              <span className="truncate">
-                {influencer.location.city}, {influencer.location.country}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FiGlobe className="text-indigo-400 flex-shrink-0" />
-              <span className="truncate">
-                {influencer.languages?.map((l) => l.name).join(", ")}
-              </span>
-            </div>
+        </div>
+
+        {/* 3. FOOTER: Social Icons and Action Button */}
+        <div className="mt-6 pt-4 border-t border-slate-700/50 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            {influencer.socialMedia.slice(0, 4).map((social, i) => {
+              const Icon = socialIcons[social.platform];
+              return Icon ? (
+                <Link
+                  key={i}
+                  href={social.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-indigo-400 transition-colors"
+                  aria-label={social.platform}
+                >
+                  <Icon size={20} />
+                </Link>
+              ) : null;
+            })}
           </div>
+          <button
+            onClick={() => router.push(`/find-influencer/${influencer._id}`)}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-all text-sm flex items-center gap-2"
+          >
+            Profile
+            <FiArrowRight className="transition-transform group-hover:translate-x-1" />
+          </button>
         </div>
-        <div className="flex justify-center space-x-4 mb-5 mt-2">
-          {influencer.socialMedia.slice(0, 4).map((social, i) => {
-            const Icon = socialIcons[social.platform];
-            return Icon ? (
-              <Link
-                key={i}
-                href={social.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-indigo-400 transition-all duration-300 transform hover:scale-110"
-                aria-label={social.platform}
-              >
-                <Icon size={22} />
-              </Link>
-            ) : null;
-          })}
-        </div>
-        <button
-          onClick={() => router.push(`/find-influencer/${influencer._id}`)}
-          className="mt-auto w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform group-hover:scale-105"
-        >
-          View Profile <FiArrowRight className="ml-2" />
-        </button>
       </div>
     </div>
   );
 };
-
 const FilterControls = ({
   filters,
   handleFilterChange,
@@ -267,8 +282,12 @@ const FindInfluencerPage = () => {
           </p>
         </section>
 
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="mb-8">
+          {/* Main container for the search and filter controls */}
+          {/* On mobile (default): flex-col to stack items */}
+          {/* On desktop (md and up): flex-row to create a single line, with items centered vertically */}
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Search Input - flex-grow allows it to take up available space */}
             <div className="relative flex-grow">
               <FiSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -279,6 +298,21 @@ const FindInfluencerPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+
+            {/* Desktop Filter Controls */}
+            {/* 'hidden md:flex' ensures this block only appears on medium screens and up, as a flex container */}
+            <div className="hidden md:flex items-center gap-4">
+              <FilterControls
+                filters={filters}
+                handleFilterChange={handleFilterChange}
+                niches={uniqueNiches}
+                locations={uniqueLocations}
+                languages={uniqueLanguages}
+              />
+            </div>
+
+            {/* Mobile Filter Toggle Button */}
+            {/* 'md:hidden' ensures this button only appears on small screens */}
             <button
               className="md:hidden flex items-center justify-center gap-2 w-full p-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
               onClick={() => setShowMobileFilters(!showMobileFilters)}
@@ -286,17 +320,11 @@ const FindInfluencerPage = () => {
               <FiFilter /> {showMobileFilters ? "Hide Filters" : "Show Filters"}
             </button>
           </div>
-          <div className="hidden md:block">
-            <FilterControls
-              filters={filters}
-              handleFilterChange={handleFilterChange}
-              niches={uniqueNiches}
-              locations={uniqueLocations}
-              languages={uniqueLanguages}
-            />
-          </div>
+
+          {/* Conditionally Rendered Mobile Filters */}
+          {/* This container remains separate and only appears on mobile when toggled */}
           {showMobileFilters && (
-            <div className="md:hidden bg-slate-800/50 p-4 rounded-lg">
+            <div className="md:hidden mt-4 bg-slate-800/50 p-4 rounded-lg">
               <FilterControls
                 filters={filters}
                 handleFilterChange={handleFilterChange}
@@ -323,7 +351,7 @@ const FindInfluencerPage = () => {
         ) : error ? (
           <div className="text-center py-12 text-red-400">{error}</div>
         ) : filteredInfluencers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredInfluencers.map((influencer) => (
               <InfluencerCard key={influencer._id} influencer={influencer} />
             ))}

@@ -10,13 +10,21 @@ const secret = process.env.NEXTAUTH_SECRET;
 export async function GET() {
   try {
     await dbConnect();
-    const influencers = await Influencer.find({ status: "active" })
+    const influencers = await Influencer.find()
       .populate({
         path: "user",
+        match: { status: "active" }, // only populate users with active status
         select: "-password -__v -resetPasswordToken -resetPasswordExpires",
       })
       .select("-__v");
-    return NextResponse.json({ influencers }, { status: 200 });
+    const activeInfluencers = influencers.filter(
+      (influencer) => influencer.user !== null
+    );
+
+    return NextResponse.json(
+      { influencers: activeInfluencers },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
