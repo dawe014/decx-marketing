@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Article from "@/models/Magazine";
+import AuthUtils from "@/lib/authUtils"; // Utility for authentication
 
 // POST /api/articles - Create a new article
 export async function POST(req) {
   try {
     await dbConnect();
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id, role } = userInfo || {};
+    if (!id || role !== "admin") {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
 
     const body = await req.json();
 

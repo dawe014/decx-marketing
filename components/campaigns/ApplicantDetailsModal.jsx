@@ -105,7 +105,7 @@ export default function ApplicantDetailsModal({
               <h4 className="text-sm font-medium text-slate-400 mb-2">
                 APPLICATION DATE
               </h4>
-              <p className="text-white">{formatDate(applicant.appliedAt)}</p>
+              <p className="text-white">{formatDate(applicant.createdAt)}</p>
             </div>
             <div className="bg-slate-750 p-4 rounded-lg">
               <h4 className="text-sm font-medium text-slate-400 mb-2">

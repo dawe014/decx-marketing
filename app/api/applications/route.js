@@ -3,13 +3,13 @@ import Application from "@/models/Application";
 import { NextResponse } from "next/server";
 import Campaign from "@/models/Campaign";
 import Influencer from "@/models/Influencer";
-import { getUserIdFromToken } from "@/utils/auth";
-
+import AuthUtils from "@/lib/authUtils"; // Utility to get user info from request
 export async function POST(req) {
   await connectDB();
   try {
     const data = await req.json();
-    const { userId } = getUserIdFromToken(req.headers.get("authorization"));
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id: userId } = userInfo || {};
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized access." },

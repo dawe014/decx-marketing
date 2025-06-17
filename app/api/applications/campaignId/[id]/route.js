@@ -3,15 +3,13 @@ import Application from "@/models/Application";
 import { NextResponse } from "next/server";
 import Campaign from "@/models/Campaign";
 import Brand from "@/models/Brand";
-import { getUserIdFromToken } from "@/utils/auth";
-
+import AuthUtils from "@/lib/authUtils"; // Utility to get user info from request
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { campaignId, id } = await params;
-    const token = req.headers.get("authorization");
-
-    const { userId } = getUserIdFromToken(token);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id: userId } = userInfo || {};
     if (!userId) {
       return NextResponse.json(
         {

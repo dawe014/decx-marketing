@@ -10,7 +10,7 @@ const secret = process.env.NEXTAUTH_SECRET;
 export async function GET() {
   try {
     await dbConnect();
-    const influencers = await Influencer.find()
+    const influencers = await Influencer.find({ status: "active" })
       .populate({
         path: "user",
         select: "-password -__v -resetPasswordToken -resetPasswordExpires",

@@ -26,7 +26,7 @@ export async function GET(req, { params }) {
     const existingInfluencer = await Influencer.findOne({ user: id });
     if (existingInfluencer) {
       return NextResponse.json({
-        redirect: `/profile`,
+        redirect: `/jobs`,
       });
     } else {
       console.log("this is from else of influencer");

@@ -2,15 +2,13 @@ import connectDB from "@/config/database"; // your MongoDB connection util
 import Application from "@/models/Application";
 import { NextResponse } from "next/server";
 import Campaign from "@/models/Campaign";
-import { getUserIdFromToken } from "@/utils/auth";
-
+import AuthUtils from "@/lib/authUtils";
 export async function GET(req, { params }) {
   try {
     await connectDB();
     const { campaignId } = await params;
-    const token = req.headers.get("authorization");
-
-    const { userId } = getUserIdFromToken(token);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id: userId } = userInfo || {};
     if (!userId) {
       return NextResponse.json(
         {

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { handleMediaUpload } from "@/lib/upload"; // Import the utility function
 import dbConnect from "@/config/database";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils"; // Import your authentication utility
 import Influencer from "@/models/Influencer";
 export const config = {
   api: {
@@ -13,13 +12,18 @@ export const config = {
 export async function PATCH(req) {
   try {
     await dbConnect();
-    const token = await getToken({ req, secret });
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
+    // Validate the request and get user info
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo;
+    if (!id) {
+      return NextResponse.json(
+        { message: "Unauthorized access" },
+        { status: 401 }
+      );
     }
-    const { id } = token;
     const formData = await req.formData();
-    console.log("the form data from upload influencer profile", formData);
+
     const file = formData.get("profileImage");
     if (!file) {
       return NextResponse.json(
@@ -36,7 +40,6 @@ export async function PATCH(req) {
       { user: id },
       { $set: { profilePhoto: fileUrl } }
     );
-    console.log("Influencer with profile", influencer);
     return NextResponse.json({
       message: "Profile image uploaded",
       url: fileUrl,

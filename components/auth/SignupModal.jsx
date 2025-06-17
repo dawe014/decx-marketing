@@ -10,6 +10,7 @@ const SignupModal = ({ influencer, brand }) => {
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [alertState, setAlertState] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   // Form states
@@ -25,7 +26,6 @@ const SignupModal = ({ influencer, brand }) => {
     setIsRoleModalOpen(false);
     setIsSignupModalOpen(true);
     sessionStorage.setItem("temp_role", role); // Store role temporarily
-    signIn("google");
   };
 
   const openRole = () => {
@@ -50,6 +50,7 @@ const SignupModal = ({ influencer, brand }) => {
     }
 
     try {
+      setIsLoading(true);
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,14 +61,13 @@ const SignupModal = ({ influencer, brand }) => {
         }),
       });
       const data = await res.json();
-      console.log("dawe", res);
       if (res.ok) {
         setAlertState({
           showAlert: true,
           message: "Signup successful",
           type: "success",
         });
-        router.push("/signup/verify");
+        router.push("/login");
       }
       if (!res.ok) {
         setAlertState({
@@ -76,8 +76,8 @@ const SignupModal = ({ influencer, brand }) => {
           type: "error",
         });
       }
+      setIsLoading(false);
     } catch (err) {
-      console.error("Signup failed:", err);
       setAlertState({
         showAlert: true,
         message: err.message,
@@ -149,11 +149,11 @@ const SignupModal = ({ influencer, brand }) => {
             <div className="flex justify-between items-center mb-6">
               <button
                 onClick={openRole}
-                className="text-gray-400 hover:text-white transition-colors text-xl focus:outline-none"
+                className="text-gray-400 hover:text-white transition-colors  focus:outline-none"
               >
-                <FaArrowLeft size={24} className="inline" /> Role
+                <FaArrowLeft size={18} className="inline" /> Role
               </button>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white">
                 Join as {selectedRole === "influencer" ? "Influencer" : "Brand"}
               </h2>
               <button
@@ -172,13 +172,9 @@ const SignupModal = ({ influencer, brand }) => {
               />
             )}
 
-            {selectedRole === "brand" && brand}
-            {selectedRole === "influencer" && influencer}
-            <div className="flex items-center my-6">
-              <div className="flex-1 h-px bg-gray-700"></div>
-              <span className="px-4 text-gray-400 text-sm">OR</span>
-              <div className="flex-1 h-px bg-gray-700"></div>
-            </div>
+            <p className="mt-2 text-sm text-gray-300">
+              Please enter your email and create a password to get started.
+            </p>
 
             <form onSubmit={handleSignupSubmit} className="space-y-4">
               <div>
@@ -218,12 +214,21 @@ const SignupModal = ({ influencer, brand }) => {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-lg mt-2 transition-colors"
-              >
-                Sign up
-              </button>
+              {isLoading ? (
+                <button
+                  type="button"
+                  className="w-full bg-primary text-white font-medium py-2 px-4 rounded-lg cursor-not-allowed opacity-50"
+                >
+                  Signing up...
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Sign up
+                </button>
+              )}
             </form>
 
             <div className="mt-6 text-center text-sm text-gray-400">

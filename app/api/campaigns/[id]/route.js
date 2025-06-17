@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/config/database";
 import Campaign from "@/models/Campaign";
+import Application from "@/models/Application"; // Import Application model if needed
 import AuthUtils from "@/lib/authUtils"; // Utility for authentication
 
 // UPDATE Campaign - only provided fields
 export async function PATCH(req, { params }) {
   try {
     await dbConnect();
-    const { id } = await AuthUtils.getUserInfo(req);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo || {};
     if (!id) {
       return NextResponse.json(
         { error: "Unauthorized access" },
@@ -102,7 +104,8 @@ export async function DELETE(req, { params }) {
   try {
     await dbConnect();
     const { id: campaignId } = await params;
-    const { id, role } = await AuthUtils.getUserInfo(req);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo || {};
     if (!id) {
       return NextResponse.json(
         { error: "Unauthorized access" },

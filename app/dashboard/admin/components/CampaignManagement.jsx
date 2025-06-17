@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
   FiBriefcase,
@@ -14,6 +15,55 @@ import {
   FiTag,
 } from "react-icons/fi";
 
+// --- Step 1 & 2 (Combined for simplicity in a single file example) ---
+// In a real project, you should put these in their own files and import them.
+
+const CampaignCardSkeleton = () => (
+  <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 animate-pulse">
+    <div className="flex justify-between items-start mb-4">
+      <div className="w-3/4 h-6 bg-slate-700 rounded"></div>
+      <div className="w-16 h-5 bg-slate-700 rounded-full"></div>
+    </div>
+    <div className="w-1/2 h-4 bg-slate-700 rounded mb-6"></div>
+    <div className="grid grid-cols-3 gap-4 mb-6">
+      <div>
+        <div className="h-3 w-12 bg-slate-700 rounded mb-2"></div>
+        <div className="h-5 w-20 bg-slate-700 rounded"></div>
+      </div>
+      <div>
+        <div className="h-3 w-16 bg-slate-700 rounded mb-2"></div>
+        <div className="h-5 w-8 bg-slate-700 rounded"></div>
+      </div>
+      <div>
+        <div className="h-3 w-14 bg-slate-700 rounded mb-2"></div>
+        <div className="h-5 w-24 bg-slate-700 rounded"></div>
+      </div>
+    </div>
+    <div className="h-10 w-full bg-slate-700 rounded-lg"></div>
+  </div>
+);
+
+const CampaignSkeleton = () => (
+  <div className="space-y-6">
+    <div className="border-b border-slate-700">
+      <div className="flex space-x-8 animate-pulse">
+        <div className="h-5 w-12 bg-slate-700 rounded my-4"></div>
+        <div className="h-5 w-16 bg-slate-700 rounded my-4"></div>
+        <div className="h-5 w-20 bg-slate-700 rounded my-4"></div>
+        <div className="h-5 w-24 bg-slate-700 rounded my-4"></div>
+      </div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {Array(6)
+        .fill(0)
+        .map((_, index) => (
+          <CampaignCardSkeleton key={index} />
+        ))}
+    </div>
+  </div>
+);
+
+// --- Main Component ---
 export default function CampaignManagement() {
   const [activeTab, setActiveTab] = useState("active");
   const [viewingCampaign, setViewingCampaign] = useState(null);
@@ -21,11 +71,12 @@ export default function CampaignManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch campaigns from API
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
         setLoading(true);
+        // Simulate a longer fetch to see the skeleton
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         const response = await fetch("/api/campaigns");
 
         if (!response.ok) {
@@ -56,13 +107,10 @@ export default function CampaignManagement() {
     fetchCampaigns();
   }, []);
 
-  // Safely filter campaigns
   const filteredCampaigns = Array.isArray(campaigns)
     ? campaigns.filter((campaign) => {
-        if (activeTab === "active") return campaign.status === "active";
-        if (activeTab === "pending") return campaign.status === "pending";
-        if (activeTab === "completed") return campaign.status === "completed";
-        return true;
+        if (activeTab === "all") return true;
+        return campaign.status === activeTab;
       })
     : [];
 
@@ -83,7 +131,6 @@ export default function CampaignManagement() {
     );
   };
 
-  // Handle approve/reject actions
   const handleCampaignAction = async (campaignId, action) => {
     try {
       const response = await fetch(`/api/campaigns/${campaignId}`, {
@@ -126,13 +173,11 @@ export default function CampaignManagement() {
     }
   };
 
+  // --- THE ONLY CHANGE YOU NEED TO MAKE IN THIS FILE ---
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <CampaignSkeleton />;
   }
+  // --- END OF CHANGE ---
 
   if (error) {
     return (
@@ -142,6 +187,7 @@ export default function CampaignManagement() {
     );
   }
 
+  // ... (rest of the component remains exactly the same)
   return (
     <div className="space-y-6">
       {/* Tabs */}
@@ -166,7 +212,7 @@ export default function CampaignManagement() {
       {/* Campaigns */}
       {filteredCampaigns.length === 0 ? (
         <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
-          <p className="text-slate-400">No campaigns found</p>
+          <p className="text-slate-400">No campaigns found for "{activeTab}"</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,7 +293,7 @@ export default function CampaignManagement() {
         </div>
       )}
 
-      {/* Campaign Details Modal */}
+      {/* Campaign Details Modal (no changes needed here) */}
       {viewingCampaign && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -416,10 +462,16 @@ export default function CampaignManagement() {
                   )}
 
                   <div className="pt-4">
-                    <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center">
-                      <FiExternalLink className="mr-2" />
-                      View Full Campaign Report
-                    </button>
+                    <Link
+                      href={`/jobs/${
+                        viewingCampaign._id || viewingCampaign.id
+                      }`}
+                    >
+                      <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <FiExternalLink className="mr-2" />
+                        View Full Campaign Post
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </div>

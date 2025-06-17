@@ -31,10 +31,6 @@ const formatNumber = (num) => {
   return num.toString();
 };
 
-const formatEngagementRate = (rate) => {
-  return rate ? (rate * 100).toFixed(2) + "%" : "N/A";
-};
-
 // In a real app, move to constants/index.js
 const TABS = {
   ABOUT: "About",
@@ -144,14 +140,6 @@ const ProfileSidebar = ({ influencer }) => {
                 <span className="font-medium">{formatNumber(p.followers)}</span>
               </li>
             ))}
-            <div className="pt-2 border-t border-slate-700/50">
-              <li className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Avg. Engagement:</span>
-                <span className="font-medium text-indigo-400">
-                  {formatEngagementRate(calculateAverageEngagement())}
-                </span>
-              </li>
-            </div>
           </ul>
         </InfoCard>
       </div>
@@ -250,10 +238,6 @@ const TabContent = ({ activeTab, influencer }) => {
                 <li className="flex justify-between">
                   <span>Followers:</span>{" "}
                   <strong>{formatNumber(p.followers)}</strong>
-                </li>
-                <li className="flex justify-between">
-                  <span>Engagement:</span>{" "}
-                  <strong>{formatEngagementRate(p.engagementRate)}</strong>
                 </li>
               </ul>
             </InfoCard>

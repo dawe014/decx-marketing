@@ -34,13 +34,6 @@ export async function POST(req) {
     const { id: userId, role } = userInfo; // Extract user ID and role from userInfo
     // Extract the JWT token from Authorization header
 
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: "You are not logged in, Please login" },
-        { status: 400 }
-      );
-    }
-
     // Verify and decode the token
     if (!userId) {
       return NextResponse.json(

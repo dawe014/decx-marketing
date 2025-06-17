@@ -3,9 +3,38 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const cookieStore = cookies();
-  cookieStore.set("accessToken", "", { maxAge: 0 });
-  cookieStore.set("refreshToken", "", { maxAge: 0 });
+  try {
+    const cookieStore = await cookies();
 
-  return NextResponse.json({ success: true, message: "Logged out" });
+    // Clear the access and refresh tokens
+    cookieStore.set("accessToken", "", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+    });
+
+    cookieStore.set("refreshToken", "", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout Error:", error);
+    return new NextResponse(
+      JSON.stringify({
+        success: false,
+        message: "An error occurred during logout",
+      }),
+      { status: 500 }
+    );
+  }
 }

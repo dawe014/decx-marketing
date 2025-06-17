@@ -9,8 +9,8 @@ export async function PATCH(req, { params }) {
   const { id } = await params;
 
   try {
-    const { id: userId } = await AuthUtils.getUserInfo(req);
-    console.log("User ID from token:", userId);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id: userId } = userInfo || {};
 
     if (!userId) {
       return NextResponse.json(
@@ -70,7 +70,8 @@ export async function DELETE(req, { params }) {
   const { id } = await params;
 
   try {
-    const { id: userId } = await AuthUtils.getUserInfo(req);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id: userId } = userInfo || {};
 
     if (!userId) {
       return NextResponse.json(

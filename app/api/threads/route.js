@@ -91,7 +91,8 @@ export async function GET(req) {
 export async function POST(req) {
   await dbConnect();
 
-  const { id } = await AuthUtils.getUserInfo(req);
+  const { userInfo } = await AuthUtils.validateRequest(req);
+  const { id, role } = userInfo;
 
   console.log("Creating thread for user ID:", id);
   if (!id) {

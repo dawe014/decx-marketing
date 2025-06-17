@@ -27,7 +27,20 @@ export async function GET(req, { params }) {
     if (!threadExists) {
       return NextResponse.json({ error: "Thread not found" }, { status: 404 });
     }
-
+    await Message.updateMany(
+      {
+        threadId,
+        "recipient.user": id,
+        "recipient.read": false,
+      },
+      {
+        $set: {
+          "recipient.read": true,
+          "recipient.readAt": new Date(),
+          status: "read",
+        },
+      }
+    );
     const messages = await Message.find({
       threadId: objectId,
     })

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FiHome, FiBriefcase, FiStar } from "react-icons/fi";
-
 const NotFoundPage = () => {
   return (
     <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center text-center p-6">
@@ -28,30 +27,33 @@ const NotFoundPage = () => {
 
           {/* Primary action button */}
           <div className="mt-10">
-            <Link href="/" legacyBehavior>
-              <a className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
-                <FiHome />
-                Return to Home
-              </a>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+            >
+              <FiHome />
+              Return to Home
             </Link>
           </div>
 
           {/* Secondary navigation links */}
           <div className="mt-8 flex justify-center items-center gap-8 text-slate-300">
-            <Link href="/for-brands" legacyBehavior>
-              <a className="flex items-center gap-2 hover:text-indigo-400 transition-colors">
-                <FiBriefcase />
-                <span>For Brands</span>
-              </a>
+            <Link
+              href="/for-brands"
+              className="flex items-center gap-2 hover:text-indigo-400 transition-colors"
+            >
+              <FiBriefcase />
+              <span>For Brands</span>
             </Link>
 
             <div className="h-6 w-px bg-slate-700"></div>
 
-            <Link href="/for-creators" legacyBehavior>
-              <a className="flex items-center gap-2 hover:text-indigo-400 transition-colors">
-                <FiStar />
-                <span>For Creators</span>
-              </a>
+            <Link
+              href="/for-creators"
+              className="flex items-center gap-2 hover:text-indigo-400 transition-colors"
+            >
+              <FiStar />
+              <span>For Creators</span>
             </Link>
           </div>
         </div>

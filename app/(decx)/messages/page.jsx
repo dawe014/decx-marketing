@@ -9,10 +9,155 @@ import {
   FiChevronLeft,
 } from "react-icons/fi";
 import { useSession } from "next-auth/react";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
+// --- Skeleton Components for Loading State ---
+
+function ThreadListSkeletonItem() {
+  return (
+    <div className="p-3 flex items-start space-x-3">
+      <div className="w-12 h-12 rounded-full bg-slate-700"></div>
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex justify-between items-baseline">
+          <div className="h-4 w-2/3 bg-slate-700 rounded"></div>
+          <div className="h-3 w-1/4 bg-slate-700 rounded"></div>
+        </div>
+        <div className="h-3 w-full bg-slate-700 rounded"></div>
+      </div>
+    </div>
+  );
+}
+
+function MessagingSkeleton() {
+  return (
+    <div className="flex flex-1 h-screen bg-slate-900 animate-pulse">
+      {/* Skeleton Thread List */}
+      <div className="w-full md:w-80 lg:w-96 flex flex-col border-r border-slate-700 bg-slate-800/50">
+        <div className="p-4 border-b border-slate-700">
+          <div className="h-10 bg-slate-700 rounded-lg"></div>
+        </div>
+        <div className="flex-1">
+          {[...Array(8)].map((_, i) => (
+            <ThreadListSkeletonItem key={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* Skeleton Message Panel */}
+      <div className="flex-1 flex-col hidden md:flex">
+        <div className="p-3 border-b border-slate-700 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-slate-700"></div>
+            <div className="h-5 w-32 bg-slate-700 rounded-md"></div>
+          </div>
+          <div className="w-6 h-6 bg-slate-700 rounded-full"></div>
+        </div>
+        <div className="flex-1"></div>
+        <div className="p-3 border-t border-slate-700 flex items-center gap-2">
+          <div className="w-10 h-10 bg-slate-700 rounded-full"></div>
+          <div className="h-10 flex-1 bg-slate-700 rounded-full"></div>
+          <div className="w-10 h-10 bg-slate-700 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- UI Components ---
+
+function ThreadListItem({ thread, isSelected, onClick, currentUserId }) {
+  const otherParticipant =
+    thread.participants.find((p) => p._id !== currentUserId) || {};
+  const lastMessage = thread.lastMessage;
+  const isUnread =
+    lastMessage?.sender._id !== currentUserId && !lastMessage?.recipient.read;
+
+  return (
+    <div
+      onClick={onClick}
+      className={`p-3 border-b border-slate-800 cursor-pointer transition-colors duration-200 ${
+        isSelected ? "bg-indigo-600/20" : "hover:bg-slate-800/50"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-indigo-300 font-bold text-lg relative overflow-hidden">
+            {otherParticipant.profilePhoto ? (
+              <Image
+                src={otherParticipant.profilePhoto}
+                alt={otherParticipant.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              otherParticipant.name?.charAt(0).toUpperCase() || "?"
+            )}
+          </div>
+          {otherParticipant.online && (
+            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-slate-900"></div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-semibold text-white truncate">
+              {otherParticipant.name || "Unknown User"}
+            </h3>
+            {lastMessage && (
+              <span className="text-xs text-slate-500 flex-shrink-0 ml-2">
+                {formatDistanceToNow(new Date(lastMessage.createdAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            )}
+          </div>
+          <p
+            className={`text-sm mt-1 truncate ${
+              isUnread ? "text-slate-200 font-medium" : "text-slate-400"
+            }`}
+          >
+            {lastMessage?.content?.text || "No messages yet"}
+          </p>
+        </div>
+        {isUnread && (
+          <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full flex-shrink-0 self-start mt-1"></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MessageBubble({ message, isSender }) {
+  return (
+    <div
+      className={`flex items-end gap-2 ${
+        isSender ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`max-w-xs md:max-w-md lg:max-w-xl px-4 py-2.5 rounded-2xl shadow-sm ${
+          isSender
+            ? "bg-indigo-600 text-white rounded-br-lg"
+            : "bg-slate-700 text-slate-200 rounded-bl-lg"
+        }`}
+      >
+        <p className="whitespace-pre-wrap leading-relaxed">
+          {message.content.text}
+        </p>
+        <div
+          className={`text-xs mt-1.5 ${
+            isSender ? "text-indigo-200" : "text-slate-400"
+          } text-right`}
+        >
+          {format(new Date(message.createdAt), "p")}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Main Page Component ---
 export default function MessagePage() {
   const { data: session } = useSession();
   const [threads, setThreads] = useState([]);
@@ -21,387 +166,253 @@ export default function MessagePage() {
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [showThreadList, setShowThreadList] = useState(true);
+  const [isMobileView, setIsMobileView] = useState(false); // New state for mobile detection
   const messagesEndRef = useRef(null);
-
   const searchParams = useSearchParams();
   const threadIdFromURL = searchParams.get("threadId");
 
+  // --- Effects ---
+
+  // Detect mobile view on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Fetching and selecting initial thread
   useEffect(() => {
     if (!session) return;
-
     const fetchThreads = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch("/api/threads");
         const data = await response.json();
-        console.log("Fetched threads:", data);
         setThreads(data);
-
         if (threadIdFromURL) {
           const foundThread = data.find((t) => t._id === threadIdFromURL);
-          if (foundThread) {
-            setSelectedThread(foundThread);
-            setShowThreadList(false);
-          }
+          setSelectedThread(foundThread || null);
         }
-
-        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching threads:", error);
+      } finally {
         setIsLoading(false);
       }
     };
-
     fetchThreads();
   }, [session, threadIdFromURL]);
 
+  // Fetching messages for selected thread
   useEffect(() => {
     if (!selectedThread) return;
-
     const fetchMessages = async () => {
       try {
         const response = await fetch(
           `/api/threads/${selectedThread._id}/messages`
         );
-        const data = await response.json();
-        setMessages(data);
+        setMessages(await response.json());
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
-
     fetchMessages();
   }, [selectedThread]);
 
+  // Auto-scroll to latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages, selectedThread]);
 
+  // --- Handlers ---
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedThread || !session) return;
-
-    const tempMessage = {
+    const optimisticMessage = {
       _id: Date.now().toString(),
-      threadId: selectedThread._id,
-      sender: {
-        _id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        image: session.user.image,
-      },
-      recipient: {
-        user:
-          selectedThread.participants.find((p) => p._id !== session.user.id)
-            ?._id || null,
-        read: false,
-      },
-      content: {
-        text: newMessage,
-        attachments: [],
-      },
-      type: "text",
-      status: "sent",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      sender: { _id: session.user.id },
+      content: { text: newMessage },
+      createdAt: new Date().toISOString(),
     };
-
-    setMessages((prev) => [...prev, tempMessage]);
+    setMessages((prev) => [...prev, optimisticMessage]);
     setNewMessage("");
-
-    setThreads((prev) =>
-      prev
-        .map((thread) =>
-          thread._id === selectedThread._id
-            ? { ...thread, lastMessage: tempMessage, updatedAt: new Date() }
-            : thread
-        )
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    );
-
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     try {
       const response = await fetch(
         `/api/threads/${selectedThread._id}/messages`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: newMessage,
-            type: "text",
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: newMessage, type: "text" }),
         }
       );
-
       if (response.ok) {
         const sentMessage = await response.json();
-
         setMessages((prev) =>
-          prev.map((msg) => (msg._id === tempMessage._id ? sentMessage : msg))
+          prev.map((msg) =>
+            msg._id === optimisticMessage._id ? sentMessage : msg
+          )
         );
-
         setThreads((prev) =>
           prev
-            .map((thread) =>
-              thread._id === selectedThread._id
-                ? { ...thread, lastMessage: sentMessage, updatedAt: new Date() }
-                : thread
+            .map((t) =>
+              t._id === selectedThread._id
+                ? {
+                    ...t,
+                    lastMessage: sentMessage,
+                    updatedAt: sentMessage.createdAt,
+                  }
+                : t
             )
             .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
         );
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      setMessages((prev) => prev.filter((msg) => msg._id !== tempMessage._id));
+      setMessages((prev) =>
+        prev.filter((msg) => msg._id !== optimisticMessage._id)
+      );
     }
   };
 
   const filteredThreads = threads.filter((thread) => {
-    if (!searchQuery) return true;
-
-    const participantNames = thread.participants
-      .filter((p) => p._id !== session?.user.id)
-      .map((p) => p.name.toLowerCase());
-
+    const otherParticipant = thread.participants.find(
+      (p) => p._id !== session?.user.id
+    );
     return (
-      participantNames.some((name) =>
-        name.includes(searchQuery.toLowerCase())
-      ) ||
-      (thread.title &&
-        thread.title.toLowerCase().includes(searchQuery.toLowerCase()))
+      !searchQuery ||
+      otherParticipant?.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-slate-900 min-h-screen">
-        <div className="text-white">Loading messages...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <MessagingSkeleton />;
+
+  const currentOtherParticipant =
+    selectedThread?.participants.find((p) => p._id !== session?.user.id) || {};
+  const showMessagePanel = !isMobileView || (isMobileView && selectedThread);
+  const showThreadPanel = !isMobileView || (isMobileView && !selectedThread);
 
   return (
-    <div className="flex-1 flex h-screen bg-slate-900">
-      {/* Threads List - shown on desktop and mobile when toggled */}
-      <div
-        className={`w-full md:w-80 flex flex-col border-r border-slate-700 bg-slate-900 absolute md:relative z-20 h-full transition-transform duration-300 ease-in-out ${
-          showThreadList
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0"
-        }`}
-      >
-        {/* Mobile back button */}
-        <div className="md:hidden p-3 border-b border-slate-700 flex items-center">
-          <button
-            onClick={() => setShowThreadList(false)}
-            className="p-2 text-slate-400 hover:text-white"
-          >
-            <FiChevronLeft size={20} />
-          </button>
-          <h2 className="text-white ml-2 font-medium">Messages</h2>
-        </div>
-
-        {/* Fixed header */}
-        <div className="p-3 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="text-slate-400" />
+    <div className="flex h-screen bg-slate-900 text-white overflow-hidden">
+      {/* --- Thread List Panel --- */}
+      {showThreadPanel && (
+        <aside className="w-full md:w-80 lg:w-96 flex flex-col border-r border-slate-800 bg-slate-900 flex-shrink-0">
+          <header className="p-4 border-b border-slate-800 flex-shrink-0">
+            <div className="relative">
+              <FiSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search or start new chat"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-slate-400"
-            />
-          </div>
-        </div>
-
-        {/* Scrollable list */}
-        <div className="flex-1 overflow-y-auto">
-          {filteredThreads.map((thread) => {
-            const otherParticipants = thread.participants.filter(
-              (p) => p._id !== session?.user.id
-            );
-            const lastMessage = thread.lastMessage;
-            const isUnread =
-              lastMessage?.sender._id !== session?.user.id &&
-              !lastMessage?.recipient.read;
-
-            return (
-              <div
-                key={thread._id}
-                onClick={() => {
-                  setSelectedThread(thread);
-                  setShowThreadList(false);
-                }}
-                className={`p-3 border-b border-slate-700 cursor-pointer hover:bg-slate-800/50 ${
-                  selectedThread?._id === thread._id ? "bg-slate-800" : ""
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full bg-indigo-900/50 flex items-center justify-center text-indigo-400 font-medium relative overflow-hidden">
-                      {otherParticipants[0]?.profilePhoto ? (
-                        <Image
-                          src={otherParticipants[0].profilePhoto}
-                          alt={otherParticipants[0].name || "Unknown"}
-                          fill
-                          className="rounded-full object-cover"
-                        />
-                      ) : (
-                        otherParticipants[0]?.name?.charAt(0).toUpperCase() ||
-                        "?"
-                      )}
-                    </div>
-
-                    {otherParticipants.some((p) => p.online) && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-800"></div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-baseline">
-                      <h3 className="text-sm font-medium text-white truncate">
-                        {thread.isGroup
-                          ? thread.title
-                          : otherParticipants[0]?.name || "Unknown"}
-                      </h3>
-                      <span className="text-xs text-slate-400">
-                        {formatDistanceToNow(new Date(thread.updatedAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-400 truncate">
-                      {thread.isGroup
-                        ? `${otherParticipants.length} participants`
-                        : otherParticipants[0]?.email || ""}
-                    </p>
-                  </div>
-                  {isUnread && (
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  )}
-                </div>
+          </header>
+          <div className="flex-1 overflow-y-auto">
+            {filteredThreads.length > 0 ? (
+              filteredThreads.map((thread) => (
+                <ThreadListItem
+                  key={thread._id}
+                  thread={thread}
+                  isSelected={selectedThread?._id === thread._id}
+                  onClick={() => setSelectedThread(thread)}
+                  currentUserId={session?.user.id}
+                />
+              ))
+            ) : (
+              <div className="p-4 text-center text-slate-400 text-sm">
+                No conversations found.
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Message Panel */}
-      {selectedThread ? (
-        <div className="flex-1 flex flex-col h-full">
-          {/* Fixed header */}
-          <div className="p-3 border-b border-slate-700 sticky top-0 bg-slate-900 z-10 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setShowThreadList(true)}
-                className="md:hidden p-1 text-slate-400 hover:text-white"
-              >
-                <FiChevronLeft size={20} />
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-400 font-medium relative overflow-hidden">
-                    {selectedThread.participants?.find(
-                      (p) => p._id !== session?.user.id
-                    )?.profilePhoto ? (
-                      <Image
-                        src={
-                          selectedThread.participants?.find(
-                            (p) => p._id !== session?.user.id
-                          )?.profilePhoto
-                        }
-                        alt="User"
-                        fill
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      selectedThread.participants
-                        ?.find((p) => p._id !== session?.user.id)
-                        ?.name?.charAt(0)
-                        .toUpperCase()
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white">
-                    {selectedThread.isGroup
-                      ? selectedThread.title
-                      : selectedThread.participants?.find(
-                          (p) => p._id !== session?.user.id
-                        )?.name || "Unknown"}
-                  </h3>
-                </div>
-              </div>
-            </div>
-            <FiMoreVertical className="text-slate-400" />
+            )}
           </div>
-
-          {/* Scrollable messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {messages.map((msg) => (
-              <div
-                key={msg._id}
-                className={`${
-                  msg.sender._id === session?.user.id
-                    ? "text-right text-white"
-                    : "text-left text-slate-300"
-                }`}
-              >
-                <div className="inline-block bg-slate-800 px-4 py-2 rounded-lg">
-                  {msg.content.text}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Message input */}
-          <div className="p-3 border-t border-slate-700 flex items-center space-x-2">
-            <button className="p-2 text-slate-400 hover:text-white">
-              <FiPaperclip />
-            </button>
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Type your message..."
-              className="flex-1 px-4 py-2 rounded-full bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button
-              onClick={handleSendMessage}
-              className="p-2 bg-indigo-600 rounded-full text-white hover:bg-indigo-700"
-            >
-              <FiSend />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="hidden md:flex flex-1 items-center justify-center bg-slate-900">
-          <div className="text-center p-6 max-w-md">
-            <FiMessageSquare className="mx-auto text-slate-600" size={48} />
-            <h3 className="mt-4 text-lg font-medium text-white">
-              Select a conversation
-            </h3>
-            <p className="mt-2 text-slate-400">
-              Choose an existing conversation or start a new one
-            </p>
-          </div>
-        </div>
+        </aside>
       )}
 
-      {/* Mobile empty state */}
-      {!selectedThread && !showThreadList && (
-        <div className="md:hidden flex-1 flex items-center justify-center bg-slate-900">
-          <button
-            onClick={() => setShowThreadList(true)}
-            className="p-3 bg-indigo-600 rounded-lg text-white hover:bg-indigo-700"
-          >
-            View Conversations
-          </button>
-        </div>
+      {/* --- Message Panel --- */}
+      {showMessagePanel && (
+        <main className="flex-1 flex flex-col h-full bg-slate-800/20">
+          {selectedThread ? (
+            <>
+              <header className="p-3 border-b border-slate-800 flex items-center justify-between flex-shrink-0 bg-slate-900">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedThread(null)}
+                    className="md:hidden p-1 text-slate-400 hover:text-white"
+                  >
+                    <FiChevronLeft size={24} />
+                  </button>
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-indigo-300 font-bold text-lg relative overflow-hidden">
+                      {currentOtherParticipant.profilePhoto ? (
+                        <Image
+                          src={currentOtherParticipant.profilePhoto}
+                          alt={currentOtherParticipant.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        currentOtherParticipant.name?.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      {currentOtherParticipant.name}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {currentOtherParticipant.online ? "Online" : "Offline"}
+                    </p>
+                  </div>
+                </div>
+                <button className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-700">
+                  <FiMoreVertical />
+                </button>
+              </header>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((msg) => (
+                  <MessageBubble
+                    key={msg._id}
+                    message={msg}
+                    isSender={msg.sender._id === session?.user.id}
+                  />
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="p-3 border-t border-slate-800 flex items-center gap-3 flex-shrink-0 bg-slate-900">
+                <button className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-700">
+                  <FiPaperclip size={20} />
+                </button>
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  placeholder="Type a message..."
+                  className="flex-1 px-4 py-2 rounded-full bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  className="p-3 bg-indigo-600 rounded-full text-white hover:bg-indigo-700 disabled:opacity-50"
+                  disabled={!newMessage.trim()}
+                >
+                  <FiSend size={18} />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center">
+              <div className="text-center p-6">
+                <FiMessageSquare className="mx-auto text-slate-700" size={64} />
+                <h3 className="mt-4 text-xl font-medium text-white">
+                  Your Messages
+                </h3>
+                <p className="mt-2 text-slate-400">
+                  Select a conversation to start chatting.
+                </p>
+              </div>
+            </div>
+          )}
+        </main>
       )}
     </div>
   );

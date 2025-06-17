@@ -16,6 +16,9 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+    if (role !== "influencer" && role !== "brand") {
+      return NextResponse.json({ message: "Invalid role" }, { status: 400 });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -26,33 +29,20 @@ export async function POST(req) {
       );
     }
 
-    // Create verification token
-    const verificationToken = crypto.randomBytes(20).toString("hex");
-
     // Create new user
     const user = new User({
       email,
       password,
       role,
-      verificationToken,
+      isVerified: true,
+      status: "pending",
     });
 
     await user.save();
 
-    // Construct verification URL
-    const verificationUrl = `${req.nextUrl.origin}/api/auth/verify/${verificationToken}`;
-
-    // Send HTML email with a verification button
-    await sendEmail({
-      email: user.email,
-      subject: "Verify your DECx account",
-      message: verificationUrl, // Pass verification URL here
-    });
-
     return NextResponse.json(
       {
-        message:
-          "Registered Successfully. Check your email to verify your account.",
+        message: "Registered Successfully.",
       },
       { status: 201 }
     );

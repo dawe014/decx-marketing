@@ -1,104 +1,104 @@
 const mongoose = require("mongoose");
 
-const campaignSchema = new mongoose.Schema({
-  brand: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Brand",
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  niches: [String],
-  targetLocations: [String],
-  targetLanguages: [String],
-  budget: {
-    min: Number,
-    max: Number,
-    currency: {
+const campaignSchema = new mongoose.Schema(
+  {
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
+      required: true,
+    },
+    title: {
       type: String,
-      default: "ETB",
+      required: true,
+      unique: true,
+      trim: true,
     },
-  },
-  startDate: Date,
-  endDate: Date,
-  deliverables: [
-    {
-      type: {
-        type: String,
-        enum: ["post", "story", "video", "mention", "review", "other"],
-      },
-      description: String,
-      quantity: Number,
-    },
-  ],
-  contentRequirements: String,
-  platforms: [String],
-  influencerCriteria: {
-    minFollowers: Number,
-    minEngagementRate: Number,
-    gender: {
+    description: {
       type: String,
-      enum: ["male", "female", "any"],
+      required: true,
     },
-    ageRange: {
+    niches: [String],
+    targetLocations: [String],
+    targetLanguages: [String],
+    budget: {
       min: Number,
       max: Number,
-    },
-  },
-  status: {
-    type: String,
-    enum: ["draft", "active", "paused", "completed", "canceled"],
-    default: "draft",
-  },
-  applications: [
-    {
-      application: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Application",
+      currency: {
+        type: String,
+        default: "ETB",
       },
     },
-  ],
-  hiredInfluencers: [
-    {
-      influencer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Influencer",
-      },
-      contract: {
-        terms: String,
-        paymentAmount: Number,
-        paymentStatus: {
+    startDate: Date,
+    endDate: Date,
+    deliverables: [
+      {
+        type: {
           type: String,
-          enum: ["pending", "partial", "completed"],
+          enum: ["post", "story", "video", "mention", "review", "other"],
+        },
+        description: String,
+        quantity: Number,
+      },
+    ],
+    contentRequirements: String,
+    platforms: [String],
+    influencerCriteria: {
+      minFollowers: Number,
+      minEngagementRate: Number,
+      gender: {
+        type: String,
+        enum: ["male", "female", "any"],
+      },
+      ageRange: {
+        min: Number,
+        max: Number,
+      },
+    },
+    status: {
+      type: String,
+      enum: ["draft", "active", "paused", "completed", "canceled"],
+      default: "draft",
+    },
+    applications: [
+      {
+        application: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Application",
         },
       },
-      deliverablesStatus: [
-        {
-          deliverable: String,
-          status: {
-            type: String,
-            enum: ["pending", "submitted", "approved", "rejected", "revised"],
-          },
-          submittedAt: Date,
-          contentUrl: String,
+    ],
+    hiredInfluencers: [
+      {
+        influencer: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Influencer",
         },
-      ],
-    },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+        contract: {
+          terms: String,
+          paymentAmount: Number,
+          paymentStatus: {
+            type: String,
+            enum: ["pending", "partial", "completed"],
+          },
+        },
+        deliverablesStatus: [
+          {
+            deliverable: String,
+            status: {
+              type: String,
+              enum: ["pending", "submitted", "approved", "rejected", "revised"],
+            },
+            submittedAt: Date,
+            contentUrl: String,
+          },
+        ],
+      },
+    ],
   },
-  updatedAt: Date,
-});
+  {
+    timestamps: true,
+  }
+);
 
 const Campaign =
   mongoose.models.Campaign || mongoose.model("Campaign", campaignSchema);

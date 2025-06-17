@@ -2,22 +2,21 @@ import dbConnect from "@/config/database"; // Database connection utility
 import Campaign from "@/models/Campaign"; // Campaign model
 import Brand from "@/models/Brand"; // Brand model
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
-const secret = process.env.NEXTAUTH_SECRET;
+import AuthUtils from "@/lib/authUtils"; // Utility for authentication
 
 export async function GET(req) {
   try {
     // Connect to the database
     await dbConnect();
-    const token = await getToken({ req, secret });
-    const { id } = token;
-    if (!token) {
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo || {};
+
+    if (!id) {
       return NextResponse.json(
-        { message: "Authorization token is required" },
+        { error: "Unauthorized access" },
         { status: 401 }
       );
     }
-
     // Check if the user is a brand user and has an existing brand profile
     const brand = await Brand.findOne({ user: id });
 

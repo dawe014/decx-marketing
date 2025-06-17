@@ -4,42 +4,101 @@ import { useState, useEffect, use } from "react";
 import {
   FiArrowLeft,
   FiDollarSign,
-  FiCheckCircle,
-  FiXCircle,
   FiLoader,
+  FiPlus,
+  FiTrash2,
+  FiInfo,
+  FiTag,
+  FiTarget,
+  FiLock,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 
-const Modal = ({ isOpen, onClose, title, message, confirmText, isError }) => {
-  if (!isOpen) return null;
-
+// --- Skeleton Component for Loading State ---
+function EditApplicationSkeleton() {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-md w-full mx-4">
-        <h3
-          className={`text-xl font-semibold ${
-            isError ? "text-red-400" : "text-white"
-          } mb-4`}
-        >
-          {title}
-        </h3>
-        <p className="text-slate-300 text-sm mb-6">{message}</p>
-        <div className="flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
-          >
-            {confirmText || "OK"}
-          </button>
+    <div className="bg-slate-900 min-h-screen">
+      {/* Header Skeleton */}
+      <div className="bg-slate-800 border-b border-slate-700 py-4 animate-pulse">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-6 w-48 bg-slate-700 rounded-md"></div>
+        </div>
+      </div>
+      {/* Main Content Skeleton */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column Skeleton */}
+          <div className="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <div className="h-8 w-3/4 bg-slate-700 rounded-md mb-6"></div>
+            <div className="space-y-6">
+              <div className="h-20 w-full bg-slate-700/50 rounded-lg"></div>
+              <div className="h-32 w-full bg-slate-700/50 rounded-lg"></div>
+              <div className="h-24 w-full bg-slate-700/50 rounded-lg"></div>
+              <div className="h-12 w-full bg-slate-700 rounded-lg"></div>
+            </div>
+          </div>
+          {/* Right Column Skeleton */}
+          <div className="lg:col-span-1">
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+              <div className="h-6 w-1/2 bg-slate-700 rounded-md mb-6"></div>
+              <div className="space-y-4">
+                <div className="h-16 w-full bg-slate-700/50 rounded-lg"></div>
+                <div className="h-16 w-full bg-slate-700/50 rounded-lg"></div>
+                <div className="h-12 w-full bg-slate-700 rounded-lg"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
+// --- Animated Modal Component ---
+const Modal = ({ isOpen, onClose, title, message, confirmText, isError }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          className="bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-md w-full shadow-2xl"
+        >
+          <h3
+            className={`text-xl font-semibold ${
+              isError ? "text-red-400" : "text-white"
+            } mb-4`}
+          >
+            {title}
+          </h3>
+          <p className="text-slate-300 text-sm mb-6">{message}</p>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium"
+            >
+              {confirmText || "OK"}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+// --- Main Page Component ---
 export default function EditApplicationPage({ params }) {
+  // --- State Management ---
   const [application, setApplication] = useState(null);
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,32 +109,25 @@ export default function EditApplicationPage({ params }) {
     portfolioLinks: [""],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    confirmText: "",
-    isError: false,
-  });
+  const [modalState, setModalState] = useState({ isOpen: false });
   const router = useRouter();
   const { id } = use(params);
 
-  // Fetch application and campaign details
+  // --- Data Fetching ---
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
         const response = await fetch(`/api/applications/${id}`);
-        if (!response.ok) {
+        if (!response.ok)
           throw new Error("Failed to fetch application details");
-        }
         const data = await response.json();
         setApplication(data.application);
         setFormData({
           proposal: data.application.proposal || "",
           quote: data.application.quote || "",
           portfolioLinks:
-            data.application.portfolioLinks.length > 0
+            data.application.portfolioLinks?.length > 0
               ? data.application.portfolioLinks
               : [""],
         });
@@ -97,10 +149,10 @@ export default function EditApplicationPage({ params }) {
         setLoading(false);
       }
     }
-
     fetchData();
   }, [id]);
 
+  // --- Form Handlers ---
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -120,22 +172,18 @@ export default function EditApplicationPage({ params }) {
   };
 
   const removePortfolioLink = (index) => {
-    if (formData.portfolioLinks.length > 1) {
-      const newLinks = formData.portfolioLinks.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, portfolioLinks: newLinks }));
-    }
+    const newLinks = formData.portfolioLinks.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, portfolioLinks: newLinks }));
   };
 
+  // --- Submission Handler ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       const response = await fetch(`/api/applications/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           proposal: formData.proposal,
           quote: Number(formData.quote),
@@ -154,8 +202,6 @@ export default function EditApplicationPage({ params }) {
         isOpen: true,
         title: "Application Updated",
         message: "Your application has been successfully updated.",
-        confirmText: "OK",
-        isError: false,
         onClose: () => {
           setModalState({ isOpen: false });
           router.push(`/my-proposals/${id}`);
@@ -164,10 +210,8 @@ export default function EditApplicationPage({ params }) {
     } catch (err) {
       setModalState({
         isOpen: true,
-        title: "Error",
-        message:
-          err.message || "An error occurred while updating the application.",
-        confirmText: "OK",
+        title: "Update Failed",
+        message: err.message,
         isError: true,
         onClose: () => setModalState({ isOpen: false }),
       });
@@ -176,291 +220,264 @@ export default function EditApplicationPage({ params }) {
     }
   };
 
-  const formatPrice = (amount, currency) => {
-    if (currency === "ETB") {
-      return `${amount.toLocaleString()} ETB`;
-    }
-    return `$${amount}`;
-  };
-
-  if (loading) {
+  // --- Render Logic ---
+  if (loading) return <EditApplicationSkeleton />;
+  if (error)
     return (
-      <div className="bg-slate-900 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-slate-900 min-h-screen flex items-center justify-center">
-        <div className="text-center">
+      <div className="bg-slate-900 min-h-screen flex items-center justify-center text-center p-4">
+        <div>
+          <FiAlertTriangle className="text-red-500 text-5xl mx-auto mb-4" />
           <h2 className="text-xl font-medium text-white mb-2">
-            Error loading application
+            Error Loading Data
           </h2>
-          <p className="text-slate-400 mb-4">{error}</p>
+          <p className="text-slate-400 mb-6">{error}</p>
           <Link
-            href="/influencer/dashboard"
-            className="text-indigo-400 hover:text-indigo-300"
+            href="/my-proposals"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-5 rounded-lg font-medium transition-colors"
           >
-            Back to Dashboard
+            Back to Applications
           </Link>
         </div>
       </div>
     );
-  }
-
-  if (!application || !campaign) {
+  if (!application || !campaign)
     return (
-      <div className="bg-slate-900 min-h-screen flex items-center justify-center">
-        <div className="text-center">
+      <div className="bg-slate-900 min-h-screen flex items-center justify-center text-center p-4">
+        <div>
+          <FiAlertTriangle className="text-red-500 text-5xl mx-auto mb-4" />
           <h2 className="text-xl font-medium text-white mb-2">
-            Application or Campaign not found
+            Application Not Found
           </h2>
-          <Link
-            href="/influencer/dashboard"
-            className="text-indigo-400 hover:text-indigo-300"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (application.status !== "pending") {
-    return (
-      <div className="bg-slate-900 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-medium text-white mb-2">
-            Cannot edit application
-          </h2>
-          <p className="text-slate-400 mb-4">
-            Only pending applications can be edited.
+          <p className="text-slate-400 mb-6">
+            The application you are trying to edit does not exist or has been
+            deleted.
           </p>
           <Link
-            href={`/applications/${id}`}
-            className="text-indigo-400 hover:text-indigo-300"
+            href="/my-proposals"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-5 rounded-lg font-medium transition-colors"
           >
-            Back to Application
+            Back to Applications
           </Link>
         </div>
       </div>
     );
-  }
-
-  return (
-    <div className="bg-slate-900 min-h-screen text-slate-100">
-      {/* Modal */}
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={modalState.onClose || (() => setModalState({ isOpen: false }))}
-        title={modalState.title}
-        message={modalState.message}
-        confirmText={modalState.confirmText}
-        isError={modalState.isError}
-      />
-
-      {/* Header */}
-      <div className="bg-slate-800 border-b border-slate-700 py-4">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+  if (application.status !== "pending")
+    return (
+      <div className="bg-slate-900 min-h-screen flex items-center justify-center text-center p-4">
+        <div>
+          <FiLock className="text-yellow-500 text-5xl mx-auto mb-4" />
+          <h2 className="text-xl font-medium text-white mb-2">
+            Editing Locked
+          </h2>
+          <p className="text-slate-400 mb-6">
+            This application cannot be edited because its status is no longer
+            "Pending".
+          </p>
           <Link
-            href={`/applications/${id}`}
-            className="text-indigo-400 hover:text-indigo-300 flex items-center"
+            href={`/my-proposals/${id}`}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-5 rounded-lg font-medium transition-colors"
           >
-            <FiArrowLeft className="mr-2" />
-            Back to Application
+            View Application
           </Link>
         </div>
       </div>
+    );
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  const budget = campaign.budget;
+
+  return (
+    <div className="bg-slate-900 min-h-screen text-slate-200">
+      <Modal {...modalState} />
+      <header className="bg-slate-800/50 backdrop-blur-lg border-b border-slate-700 py-4 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link
+            href={`/my-proposals/${id}`}
+            className="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-2 transition-colors w-fit"
+          >
+            <FiArrowLeft /> Cancel Edit
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Left Column - Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-              <h1 className="text-2xl font-bold text-white mb-4">
-                Edit Application for {campaign.title}
+          <section className="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <div className="mb-6">
+              <p className="text-sm text-indigo-400">Editing application for</p>
+              <h1 className="text-3xl font-bold text-white">
+                {campaign.title}
               </h1>
-              <div className="flex items-center mb-6">
-                {campaign.brand?.logo && (
-                  <div className="w-10 h-10 rounded-full bg-indigo-900/50 flex items-center justify-center text-indigo-400 font-medium mr-3 relative">
-                    <Image
-                      src={campaign.brand.logo}
-                      alt={`${campaign.brand.companyName} logo`}
-                      className="rounded-full object-center object-cover"
-                      fill
-                    />
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-white">
-                    {campaign.brand?.companyName || "Brand"}
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    Budget:{" "}
-                    {formatPrice(campaign.budget.min, campaign.budget.currency)}{" "}
-                    -{" "}
-                    {formatPrice(campaign.budget.max, campaign.budget.currency)}
-                  </p>
-                </div>
-              </div>
+            </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Your Rate ({campaign.budget.currency})
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FiDollarSign className="text-slate-400" />
-                    </div>
-                    <input
-                      type="number"
-                      name="quote"
-                      value={formData.quote}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      placeholder={`Enter your rate in ${campaign.budget.currency}`}
-                      min={campaign.budget.min}
-                      max={campaign.budget.max}
-                      required
-                    />
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Budget range:{" "}
-                    {formatPrice(campaign.budget.min, campaign.budget.currency)}{" "}
-                    -{" "}
-                    {formatPrice(campaign.budget.max, campaign.budget.currency)}
-                  </p>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Cover Letter
-                  </label>
-                  <textarea
-                    name="proposal"
-                    value={formData.proposal}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="quote"
+                  className="block text-sm font-medium text-slate-300 mb-2"
+                >
+                  Your Rate ({budget.currency})
+                </label>
+                <div className="relative">
+                  <FiDollarSign className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="quote"
+                    type="number"
+                    name="quote"
+                    value={formData.quote}
                     onChange={handleInputChange}
-                    rows={5}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Explain why you're a good fit for this campaign..."
+                    className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                    placeholder={`e.g., ${(budget.min + budget.max) / 2}`}
                     required
                   />
                 </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  Campaign budget is between {budget.min.toLocaleString()} -{" "}
+                  {budget.max.toLocaleString()} {budget.currency}.
+                </p>
+              </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Portfolio Links
-                  </label>
+              <div>
+                <label
+                  htmlFor="proposal"
+                  className="block text-sm font-medium text-slate-300 mb-2"
+                >
+                  Cover Letter
+                </label>
+                <textarea
+                  id="proposal"
+                  name="proposal"
+                  value={formData.proposal}
+                  onChange={handleInputChange}
+                  rows={6}
+                  className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  placeholder="Explain why you're a great fit for this campaign..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Portfolio Links
+                </label>
+                <div className="space-y-3">
                   {formData.portfolioLinks.map((link, index) => (
-                    <div key={index} className="flex mb-2">
+                    <div key={index} className="flex items-center gap-2">
                       <input
                         type="url"
                         value={link}
                         onChange={(e) =>
                           handlePortfolioLinkChange(index, e.target.value)
                         }
-                        className="flex-1 bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        placeholder={
-                          index === 0
-                            ? "Primary portfolio URL"
-                            : "Additional link"
-                        }
+                        className="flex-grow p-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                        placeholder="https://your-portfolio.com/work"
                         required={index === 0}
                       />
-                      {index > 0 && (
+                      {formData.portfolioLinks.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removePortfolioLink(index)}
-                          className="ml-2 bg-slate-600 hover:bg-slate-500 text-white p-2 rounded-lg"
+                          className="p-3 bg-slate-700 hover:bg-red-900/50 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
                         >
-                          ×
+                          <FiTrash2 />
                         </button>
                       )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={addPortfolioLink}
-                    className="text-indigo-400 hover:text-indigo-300 text-sm mt-2 flex items-center"
-                  >
-                    + Add another link
-                  </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={addPortfolioLink}
+                  className="text-indigo-400 hover:text-indigo-300 text-sm font-medium mt-3 flex items-center gap-2"
+                >
+                  <FiPlus size={16} /> Add another link
+                </button>
+              </div>
 
+              <div className="border-t border-slate-700 pt-6">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-base transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <FiLoader className="animate-spin mr-2" />
-                      Updating...
-                    </span>
+                    <>
+                      <FiLoader className="animate-spin" /> Updating...
+                    </>
                   ) : (
-                    "Update Application"
+                    "Save Changes"
                   )}
                 </button>
-              </form>
-            </div>
-          </div>
+              </div>
+            </form>
+          </section>
 
           {/* Right Column - Campaign Info */}
-          <div className="lg:col-span-1">
-            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 sticky top-6">
-              <h2 className="text-xl font-semibold text-white mb-4">
-                Campaign Details
+          <aside className="lg:col-span-1">
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 sticky top-24 space-y-5">
+              <h2 className="text-xl font-semibold text-white">
+                Campaign Snapshot
               </h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-slate-300 mb-1">
-                    Status
-                  </h3>
-                  <div className="bg-indigo-900/30 text-indigo-400 px-3 py-1 rounded-full text-sm inline-flex items-center">
-                    <FiCheckCircle className="mr-2" />
-                    {application.status}
-                  </div>
+              <div className="flex items-center gap-3">
+                {campaign.brand?.logo && (
+                  <Image
+                    src={campaign.brand.logo}
+                    alt={`${campaign.brand.companyName} logo`}
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover bg-slate-700"
+                  />
+                )}
+                <p className="font-semibold text-white">
+                  {campaign.brand?.companyName}
+                </p>
+              </div>
+              <div>
+                <h3 className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-1">
+                  <FiTag /> Niches
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {campaign.niches?.map((n) => (
+                    <span
+                      key={n}
+                      className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded"
+                    >
+                      {n}
+                    </span>
+                  )) || (
+                    <span className="text-sm text-slate-500">
+                      Not specified
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-slate-300 mb-1">
-                    Niches
-                  </h3>
-                  <p className="text-slate-400 text-sm">
-                    {campaign.niches?.join(", ") || "Not specified"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-slate-300 mb-1">
-                    Requirements
-                  </h3>
-                  <ul className="text-slate-400 text-sm space-y-1">
-                    <li>
-                      Platforms:{" "}
-                      {campaign.platforms?.join(", ") || "Not specified"}
-                    </li>
-                    <li>
-                      Engagement:{" "}
-                      {campaign.influencerCriteria?.minEngagementRate
-                        ? `Minimum ${campaign.influencerCriteria.minEngagementRate}%`
-                        : "No minimum"}
-                    </li>
-                  </ul>
-                </div>
+              </div>
+              <div>
+                <h3 className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-1">
+                  <FiTarget /> Requirements
+                </h3>
+                <ul className="text-slate-300 text-sm space-y-1 list-disc list-inside">
+                  <li>Platforms: {campaign.platforms?.join(", ") || "N/A"}</li>
+                  <li>
+                    Min. Engagement:{" "}
+                    {campaign.influencerCriteria?.minEngagementRate
+                      ? `${campaign.influencerCriteria.minEngagementRate}%`
+                      : "N/A"}
+                  </li>
+                </ul>
+              </div>
+              <div className="border-t border-slate-700 pt-5">
                 <Link
                   href={`/jobs/${campaign._id}`}
-                  className="block w-full bg-slate-700 text-white py-3 px-4 rounded-lg font-medium text-center hover:bg-blue-600 transition-colors"
+                  target="_blank"
+                  className="block w-full text-center bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-lg font-medium transition-colors"
                 >
-                  View Campaign
+                  View Full Campaign Details
                 </Link>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

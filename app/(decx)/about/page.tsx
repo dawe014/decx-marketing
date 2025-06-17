@@ -157,7 +157,7 @@ const AboutPage = () => {
             <div className="relative h-96 rounded-2xl overflow-hidden bg-slate-800">
               {/* Placeholder for an engaging image or video */}
               <Image
-                src="/path-to-collaboration-image.jpg"
+                src="/marketing.jpg"
                 alt="Creators and brands collaborating"
                 layout="fill"
                 objectFit="cover"

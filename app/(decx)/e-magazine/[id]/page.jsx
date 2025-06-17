@@ -1,4 +1,5 @@
 "use client";
+
 import { FiArrowLeft, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -9,11 +10,8 @@ export default function ArticlePage({ params: paramsPromise }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Unwrap params using React.use()
   const params = use(paramsPromise);
   const { id: slug } = params;
-
-  console.log("slug", slug);
 
   useEffect(() => {
     async function fetchArticle() {
@@ -25,10 +23,8 @@ export default function ArticlePage({ params: paramsPromise }) {
           throw new Error("Failed to fetch article data");
         }
         const articleData = await response.json();
-        console.log("Fetched article data:", articleData);
         setArticle(articleData);
       } catch (error) {
-        console.error("Error fetching article:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -38,17 +34,30 @@ export default function ArticlePage({ params: paramsPromise }) {
   }, [slug]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <article className="py-12 max-w-3xl mx-auto animate-pulse">
+        <div className="h-6 w-32 bg-slate-700 rounded mb-4"></div>
+        <div className="h-10 w-full bg-slate-700 rounded mb-6"></div>
+        <div className="h-4 w-1/3 bg-slate-700 rounded mb-4"></div>
+        <div className="h-80 w-full bg-slate-800 rounded-xl mb-6"></div>
+        <div className="space-y-4">
+          <div className="h-4 w-full bg-slate-700 rounded"></div>
+          <div className="h-4 w-5/6 bg-slate-700 rounded"></div>
+          <div className="h-4 w-2/3 bg-slate-700 rounded"></div>
+          <div className="h-4 w-3/4 bg-slate-700 rounded"></div>
+        </div>
+      </article>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500 text-center">Error: {error}</div>;
   }
 
   if (!article) {
-    return <div>Article not found</div>;
+    return <div className="text-center">Article not found</div>;
   }
-  console.log("article", article);
+
   return (
     <article className="py-12 max-w-3xl mx-auto">
       <Link
@@ -62,7 +71,9 @@ export default function ArticlePage({ params: paramsPromise }) {
         <span className="inline-block px-3 py-1 bg-indigo-600 text-xs rounded-full mb-4">
           {article.categories}
         </span>
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">{article.title}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4 capitalize">
+          {article.title}
+        </h1>
         <div className="flex items-center text-sm text-slate-400">
           <span className="flex items-center">
             <FiClock className="mr-1" /> {article.readTime || "8"} min read
@@ -76,8 +87,6 @@ export default function ArticlePage({ params: paramsPromise }) {
           alt="Article cover"
           className="w-full rounded-xl mb-8"
         />
-
-        <p className="lead">{article.content}</p>
 
         {article.content && (
           <div dangerouslySetInnerHTML={{ __html: article.content }} />

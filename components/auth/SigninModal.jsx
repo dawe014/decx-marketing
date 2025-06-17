@@ -8,6 +8,7 @@ import { Alert } from "@/components/Alert";
 const SigninModal = ({ isOpen, children }) => {
   const router = useRouter();
   const [alertState, setAlertState] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [signinData, setSigninData] = useState({
     email: "",
     password: "",
@@ -20,6 +21,7 @@ const SigninModal = ({ isOpen, children }) => {
 
   const handleSigninSubmit = async (e) => {
     e.preventDefault();
+
     if (!signinData.email || !signinData.password) {
       setAlertState({
         showAlert: true,
@@ -28,6 +30,8 @@ const SigninModal = ({ isOpen, children }) => {
       });
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const data = await signIn("credentials", {
@@ -42,15 +46,14 @@ const SigninModal = ({ isOpen, children }) => {
           message: "Invalid email or password",
           type: "error",
         });
+        setIsSubmitting(false);
         return;
       }
 
-      // Get session to retrieve user ID
       const session = await getSession();
       const userId = session?.user?.id;
 
       if (userId) {
-        // Call redirect-check API
         const baseUrl =
           process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
         const res = await fetch(`${baseUrl}/api/auth/redirect-check/${userId}`);
@@ -62,14 +65,14 @@ const SigninModal = ({ isOpen, children }) => {
             message: `Logged in successfully, redirecting...`,
             type: "success",
           });
-          router.push(responseData.redirect); // Client-side redirect
+          router.push(responseData.redirect);
         } else {
           setAlertState({
             showAlert: true,
             message: "Logged in, but no redirect path provided",
             type: "warning",
           });
-          router.push("/"); // Fallback redirect
+          router.push("/");
         }
       } else {
         console.warn("User ID not found in session");
@@ -78,7 +81,7 @@ const SigninModal = ({ isOpen, children }) => {
           message: "Logged in, but user ID not available",
           type: "warning",
         });
-        router.push("/dashboard"); // Fallback redirect
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Sign-in or redirect-check error:", error);
@@ -87,6 +90,8 @@ const SigninModal = ({ isOpen, children }) => {
         message: "An error occurred during sign-in or redirection",
         type: "error",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -105,6 +110,7 @@ const SigninModal = ({ isOpen, children }) => {
             ✕
           </button>
         </div>
+
         {alertState?.showAlert && (
           <Alert
             message={alertState.message}
@@ -113,7 +119,9 @@ const SigninModal = ({ isOpen, children }) => {
             duration={5000}
           />
         )}
+
         {children}
+
         <div className="flex items-center my-6">
           <div className="flex-1 h-px bg-gray-700"></div>
           <span className="px-4 text-gray-400 text-sm">OR</span>
@@ -121,29 +129,25 @@ const SigninModal = ({ isOpen, children }) => {
         </div>
 
         <form onSubmit={handleSigninSubmit} className="space-y-4">
-          <div>
-            <input
-              type="email"
-              name="email"
-              value={signinData.email}
-              onChange={handleSigninInputChange}
-              required
-              placeholder="Email address"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-500"
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            value={signinData.email}
+            onChange={handleSigninInputChange}
+            required
+            placeholder="Email address"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-500"
+          />
 
-          <div>
-            <input
-              type="password"
-              name="password"
-              value={signinData.password}
-              onChange={handleSigninInputChange}
-              required
-              placeholder="Password"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-500"
-            />
-          </div>
+          <input
+            type="password"
+            name="password"
+            value={signinData.password}
+            onChange={handleSigninInputChange}
+            required
+            placeholder="Password"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-500"
+          />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -155,7 +159,7 @@ const SigninModal = ({ isOpen, children }) => {
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-300"
+                className="ml-2 text-sm text-gray-300"
               >
                 Remember me
               </label>
@@ -172,9 +176,14 @@ const SigninModal = ({ isOpen, children }) => {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-lg mt-2 transition-colors"
+            disabled={isSubmitting}
+            className={`w-full ${
+              isSubmitting
+                ? "bg-gray-700 cursor-not-allowed"
+                : "bg-primary hover:bg-primary-dark"
+            } text-white font-medium py-3 rounded-lg mt-2 transition-colors`}
           >
-            Sign In
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
 

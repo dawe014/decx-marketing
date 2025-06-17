@@ -10,7 +10,8 @@ export async function POST(req) {
     await dbConnect();
 
     // Get the authorization token from the request headers
-    const { id } = await AuthUtils.getUserInfo(req);
+    const { userInfo } = await AuthUtils.validateRequest(req);
+    const { id } = userInfo || {};
     if (!id) {
       return NextResponse.json(
         { error: "Unauthorized access" },

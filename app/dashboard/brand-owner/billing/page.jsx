@@ -3,6 +3,40 @@
 import { useState, useEffect } from "react";
 import { FiDollarSign, FiFileText } from "react-icons/fi";
 import { FaCheck } from "react-icons/fa";
+import { toast } from "sonner";
+
+// --- RESPONSIVE SKELETON LOADER ---
+const BillingSkeleton = () => (
+  <div className="space-y-8 animate-pulse">
+    {/* Current Plan Skeleton */}
+    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div className="h-6 w-1/3 bg-slate-700 rounded mb-6"></div>
+      <div className="h-48 w-full bg-slate-700/30 rounded-lg"></div>
+    </div>
+
+    {/* Change Plan Skeleton */}
+    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div className="h-6 w-1/4 bg-slate-700 rounded mb-6"></div>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="h-40 bg-slate-700/30 rounded-lg"></div>
+        <div className="h-40 bg-slate-700/30 rounded-lg"></div>
+        <div className="h-40 bg-slate-700/30 rounded-lg hidden lg:block"></div>
+      </div>
+    </div>
+
+    {/* Billing History Skeleton */}
+    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div className="h-6 w-1/3 bg-slate-700 rounded mb-6"></div>
+      {/* Mobile Card Skeleton */}
+      <div className="space-y-4 md:hidden">
+        <div className="h-20 bg-slate-700/30 rounded-lg"></div>
+        <div className="h-20 bg-slate-700/30 rounded-lg"></div>
+      </div>
+      {/* Desktop Table Skeleton */}
+      <div className="hidden md:block h-32 bg-slate-700/30 rounded-lg"></div>
+    </div>
+  </div>
+);
 
 export default function BillingComponent() {
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -30,6 +64,7 @@ export default function BillingComponent() {
   });
 
   useEffect(() => {
+    // Fetching logic... (remains the same)
     const fetchData = async () => {
       try {
         const planRes = await fetch("/api/billing/plan");
@@ -73,7 +108,6 @@ export default function BillingComponent() {
         setIsLoading((prev) => ({ ...prev, invoices: false }));
       }
     };
-
     fetchData();
   }, []);
 
@@ -82,7 +116,6 @@ export default function BillingComponent() {
     setShowPaymentForm(true);
     setError((prev) => ({ ...prev, form: null, planChange: null }));
   };
-
   const validateForm = () => {
     if (!formData.firstName.trim()) {
       return "First name is required";
@@ -95,9 +128,12 @@ export default function BillingComponent() {
     }
     return null;
   };
-
   const isFormValid = () => {
-    return formData.firstName.trim() && formData.phoneNumber.trim();
+    return (
+      formData.firstName.trim() &&
+      formData.phoneNumber.trim() &&
+      /^(?:\+251|0)9\d{8}$/.test(formData.phoneNumber)
+    );
   };
 
   const handleFormSubmit = async (e) => {
@@ -148,9 +184,22 @@ export default function BillingComponent() {
         setExpiresAt(
           new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
         );
-        alert(`Plan updated to: ${planData.plan.name}`);
+        toast({
+          title: "Plan Updated",
+          description: `Your plan has been successfully updated to ${planData.plan.name}.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
+      toast({
+        title: "Error",
+        description: error,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       setError((prev) => ({ ...prev, planChange: error.message }));
     } finally {
       setIsLoading((prev) => ({ ...prev, form: false }));
@@ -158,7 +207,6 @@ export default function BillingComponent() {
       setSelectedPlanId(null);
     }
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -166,18 +214,14 @@ export default function BillingComponent() {
   };
 
   if (isLoading.plan || isLoading.invoices) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <BillingSkeleton />;
   }
 
   return (
     <div className="space-y-8">
       {/* Payment Form Modal */}
       {showPaymentForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
           <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 max-w-md w-full">
             <h3 className="text-lg font-bold text-white mb-4">
               Enter Payment Details
@@ -225,11 +269,11 @@ export default function BillingComponent() {
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                   className="w-full p-2 bg-slate-700 text-white rounded border border-slate-600 focus:outline-none focus:border-indigo-500"
-                  placeholder="e.g., +251912345678 or 0912345678"
+                  placeholder="e.g., +251912345678"
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowPaymentForm(false)}
@@ -277,12 +321,11 @@ export default function BillingComponent() {
         </div>
       )}
 
-      {/* Current Plan */}
-      <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+      {/* Current Plan & Change Plan Section */}
+      <div className="bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-700">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-          <FiDollarSign className="mr-2" /> Current Plan
+          <FiDollarSign className="mr-2" /> Subscription Plan
         </h2>
-
         {(error.plan || error.planChange) && (
           <div className="mb-4 p-3 bg-red-900/30 text-red-400 rounded-lg">
             {error.plan || error.planChange}
@@ -290,10 +333,10 @@ export default function BillingComponent() {
         )}
 
         {currentPlan ? (
-          <div className="mb-6 p-6 bg-slate-700/30 rounded-lg border border-indigo-500">
-            <div className="flex justify-between items-start">
+          <div className="mb-8 p-4 sm:p-6 bg-slate-700/30 rounded-lg border border-indigo-500/50">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
               <div>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-white capitalize">
                   {currentPlan.name}
                 </h3>
                 <p className="text-indigo-300 text-sm mt-1">
@@ -301,16 +344,13 @@ export default function BillingComponent() {
                 </p>
               </div>
               <span
-                className={`text-xs px-2 py-1 rounded-full ${
+                className={`text-xs px-2 py-1 rounded-full capitalize self-start sm:self-center ${
                   subscriptionStatus === "active"
                     ? "bg-indigo-500 text-white"
-                    : subscriptionStatus === "expired"
-                    ? "bg-red-500 text-white"
-                    : "bg-yellow-500 text-black"
+                    : "bg-red-500 text-white"
                 }`}
               >
-                {subscriptionStatus.charAt(0).toUpperCase() +
-                  subscriptionStatus.slice(1)}
+                {subscriptionStatus}
               </span>
             </div>
             <div className="mt-4">
@@ -322,18 +362,11 @@ export default function BillingComponent() {
             {expiresAt && (
               <p className="text-sm text-slate-400 mt-2">
                 {subscriptionStatus === "active"
-                  ? `Expires on: ${new Date(expiresAt).toLocaleDateString()}`
+                  ? `Renews on: ${new Date(expiresAt).toLocaleDateString()}`
                   : `Expired on: ${new Date(expiresAt).toLocaleDateString()}`}
               </p>
             )}
-            {(subscriptionStatus === "expired" ||
-              subscriptionStatus === "canceled") && (
-              <p className="text-sm text-red-400 mt-2">
-                Your plan is {subscriptionStatus}. Please select a plan to renew
-                or upgrade.
-              </p>
-            )}
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-2 text-sm">
               {currentPlan.features.map((feature, index) => (
                 <li key={index} className="flex items-start text-slate-300">
                   <FaCheck className="text-green-500 mt-1 mr-2 flex-shrink-0" />
@@ -343,7 +376,7 @@ export default function BillingComponent() {
             </ul>
           </div>
         ) : (
-          <div className="mb-6 p-6 bg-slate-700/30 rounded-lg border border-red-500">
+          <div className="mb-8 p-6 bg-slate-700/30 rounded-lg border border-red-500/50">
             <p className="text-red-400">
               No active plan. Please select a plan below to subscribe.
             </p>
@@ -351,20 +384,26 @@ export default function BillingComponent() {
         )}
 
         <h3 className="text-lg font-bold text-white mb-4">Change Plan</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {availablePlans.map((plan) => (
             <div
               key={plan._id}
               onClick={() => handlePlanSelect(plan._id)}
-              className={`p-5 rounded-lg border cursor-pointer transition-all ${
+              className={`p-5 rounded-lg border-2 cursor-pointer transition-all ${
                 currentPlan?._id === plan._id
                   ? "border-indigo-500 bg-indigo-900/20"
                   : "border-slate-700 hover:border-slate-600"
-              } ${plan.recommended ? "ring-2 ring-yellow-500" : ""}`}
+              } ${
+                plan.recommended
+                  ? "ring-2 ring-yellow-500 ring-offset-2 ring-offset-slate-800"
+                  : ""
+              }`}
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-white">{plan.name}</h3>
+                  <h3 className="font-bold text-white capitalize">
+                    {plan.name}
+                  </h3>
                   <p className="text-sm text-slate-400 mt-1">
                     {plan.description}
                   </p>
@@ -410,33 +449,64 @@ export default function BillingComponent() {
       </div>
 
       {/* Billing History */}
-      <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+      <div className="bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-700">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
           <FiFileText className="mr-2" /> Billing History
         </h2>
-
         {error.invoices && (
           <div className="mb-4 p-3 bg-red-900/30 text-red-400 rounded-lg">
             {error.invoices}
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        {/* --- Mobile Card View --- */}
+        <div className="space-y-4 md:hidden">
+          {invoices.length === 0 ? (
+            <p className="text-center text-slate-400 py-4">No invoices found</p>
+          ) : (
+            invoices.map((invoice) => (
+              <div
+                key={invoice._id}
+                className="bg-slate-700/50 p-4 rounded-lg border border-slate-700"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold text-white">
+                      {invoice.invoiceId}
+                    </p>
+                    <p className="text-sm text-slate-400">
+                      {new Date(invoice.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span
+                    className={`capitalize text-xs px-2 py-1 rounded-full ${
+                      invoice.status === "success"
+                        ? "text-green-400 bg-green-900/30"
+                        : "text-yellow-400 bg-yellow-900/30"
+                    }`}
+                  >
+                    {invoice.status}
+                  </span>
+                </div>
+                <div className="mt-3 pt-3 border-t border-slate-600">
+                  <p className="text-right text-lg font-medium text-white">
+                    {invoice.amount} ETB
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* --- Desktop Table View --- */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-700">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">
-                  Invoice
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">
-                  Amount
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">
-                  Status
-                </th>
+            <thead className="bg-slate-700/10">
+              <tr className="text-left text-xs font-medium text-slate-400 uppercase">
+                <th>Invoice</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
@@ -451,25 +521,23 @@ export default function BillingComponent() {
                 </tr>
               ) : (
                 invoices.map((invoice) => (
-                  <tr key={invoice._id}>
-                    <td className="px-4 py-2 text-white">
+                  <tr key={invoice._id} className="text-sm">
+                    <td className="px-4 py-3 text-white">
                       {invoice.invoiceId}
                     </td>
-                    <td className="px-4 py-2 text-slate-300">
+                    <td className="px-4 py-3 text-slate-300">
                       {new Date(invoice.date).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-2 text-slate-300">
+                    <td className="px-4 py-3 text-slate-300">
                       {invoice.amount} ETB
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <span
-                        className={`${
+                        className={`capitalize text-xs px-2 py-1 rounded-full ${
                           invoice.status === "success"
-                            ? "text-green-400 bg-green-900/20"
-                            : invoice.status === "pending"
-                            ? "text-yellow-400 bg-yellow-900/20"
-                            : "text-red-400 bg-red-900/20"
-                        } text-xs px-2 py-1 rounded-full`}
+                            ? "text-green-400 bg-green-900/30"
+                            : "text-yellow-400 bg-yellow-900/30"
+                        }`}
                       >
                         {invoice.status}
                       </span>
