@@ -79,13 +79,13 @@ const InfluencerCard = ({ influencer }) => {
             <h2 className="text-xl font-bold text-white leading-tight">
               {influencer.fullName}
             </h2>
-            <div className="flex items-center mt-1.5 text-sm text-slate-400">
+            {/* <div className="flex items-center mt-1.5 text-sm text-slate-400">
               <FiStar className="text-yellow-400 fill-current" />
               <span className="text-white font-semibold ml-1.5">
                 {influencer.rating.average.toFixed(1)}
               </span>
               <span className="ml-1">({influencer.rating.count} reviews)</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -93,13 +93,13 @@ const InfluencerCard = ({ influencer }) => {
         <div className="flex-grow space-y-4 text-slate-300 text-sm">
           <div className="flex items-center gap-3">
             <FiMapPin className="text-indigo-400 flex-shrink-0" size={16} />
-            <span className="truncate">
+            <span className="truncate capitalize">
               {influencer.location.city}, {influencer.location.country}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <FiGlobe className="text-indigo-400 flex-shrink-0" size={16} />
-            <span className="truncate">
+            <span className="truncate capitalize">
               {influencer.languages?.map((l) => l.name).join(", ")}
             </span>
           </div>
@@ -107,7 +107,7 @@ const InfluencerCard = ({ influencer }) => {
             {influencer.niches.slice(0, 3).map((niche, i) => (
               <span
                 key={i}
-                className="bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-full"
+                className="bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-full capitalize"
               >
                 {niche}
               </span>
@@ -164,7 +164,7 @@ const FilterControls = ({
       >
         <option value="">All Niches</option>
         {niches.map((n) => (
-          <option key={n} value={n}>
+          <option key={n} value={n} className="capitalize">
             {n}
           </option>
         ))}
@@ -180,7 +180,7 @@ const FilterControls = ({
       >
         <option value="">All Locations</option>
         {locations.map((c) => (
-          <option key={c} value={c}>
+          <option key={c} value={c} className="capitalize">
             {c}
           </option>
         ))}
@@ -196,7 +196,7 @@ const FilterControls = ({
       >
         <option value="">All Languages</option>
         {languages.map((l) => (
-          <option key={l} value={l}>
+          <option key={l} value={l} className="capitalize">
             {l}
           </option>
         ))}
@@ -257,14 +257,27 @@ const FindInfluencerPage = () => {
     setFilters((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   // Unique values for filter dropdowns
-  const uniqueNiches = [...new Set(influencers.flatMap((i) => i.niches))];
-  const uniqueLocations = [
-    ...new Set(influencers.map((i) => i.location?.city).filter(Boolean)),
+  const normalize = (str) => str?.toLowerCase().trim();
+
+  const uniqueNiches = [
+    ...new Set(
+      influencers
+        .flatMap((i) => i.niches || [])
+        .map(normalize)
+        .filter(Boolean)
+    ),
   ];
+
+  const uniqueLocations = [
+    ...new Set(
+      influencers.map((i) => normalize(i.location?.city)).filter(Boolean)
+    ),
+  ];
+
   const uniqueLanguages = [
     ...new Set(
       influencers
-        .flatMap((i) => i.languages?.map((l) => l.name))
+        .flatMap((i) => (i.languages || []).map((l) => normalize(l.name)))
         .filter(Boolean)
     ),
   ];

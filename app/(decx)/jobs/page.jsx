@@ -1,19 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   FiSearch,
   FiDollarSign,
-  FiGlobe,
   FiTag,
-  FiMapPin,
   FiArrowRight,
   FiUsers,
   FiTrendingUp,
 } from "react-icons/fi";
 import { formatDistanceToNow } from "date-fns";
 
-// --- Skeleton Components for Loading State ---
+// --- Skeleton Components for Loading State (Unchanged) ---
 const JobCardSkeleton = () => (
   <div className="bg-slate-800/50 rounded-xl p-6 animate-pulse">
     <div className="flex justify-between items-start mb-4">
@@ -32,13 +30,13 @@ const JobCardSkeleton = () => (
   </div>
 );
 
-// --- UI Sub-Components ---
+// --- UI Sub-Components (Unchanged) ---
 const JobCard = ({ job }) => (
   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl overflow-hidden shadow-lg border border-slate-700 hover:border-indigo-500/50 transition-all duration-300 flex flex-col group">
     <div className="p-6 flex-grow">
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h2 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">
+          <h2 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors ">
             {job.title}
           </h2>
           <p className="text-sm text-slate-400">{job.brand?.companyName}</p>
@@ -55,7 +53,7 @@ const JobCard = ({ job }) => (
       <div className="space-y-3 mb-5 text-sm">
         <div className="flex items-center text-slate-400 gap-2">
           <FiTag className="text-indigo-500" />
-          <span>{job.niches.join(", ")}</span>
+          <span className="capitalize">{job.niches.join(", ")}</span>
         </div>
         <div className="flex items-center text-slate-400 gap-2">
           <FiUsers className="text-indigo-500" />
@@ -89,11 +87,13 @@ const JobCard = ({ job }) => (
   </div>
 );
 
+// --- UPDATED FilterBar to accept dynamic options ---
 const FilterBar = ({
   filters,
   handleFilterChange,
   searchTerm,
   handleSearchChange,
+  uniqueNiches, // Now accepts unique niches
 }) => (
   <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-10">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -108,7 +108,7 @@ const FilterBar = ({
           className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
       </div>
-      {/* Niche Filter */}
+      {/* Niche Filter (Now Dynamic) */}
       <div className="relative">
         <FiTag className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400" />
         <select
@@ -118,15 +118,14 @@ const FilterBar = ({
           className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none"
         >
           <option value="">All Niches</option>
-          <option value="Technology">Technology</option>{" "}
-          <option value="Fashion">Fashion</option>{" "}
-          <option value="Health & Fitness">Health & Fitness</option>{" "}
-          <option value="Travel">Travel</option>{" "}
-          <option value="Food">Food</option>{" "}
-          <option value="Lifestyle">Lifestyle</option>
+          {uniqueNiches.map((niche) => (
+            <option key={niche} value={niche}>
+              {niche}
+            </option>
+          ))}
         </select>
       </div>
-      {/* Price Filter */}
+      {/* Price Filter (Remains hardcoded) */}
       <div className="relative">
         <FiDollarSign className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400" />
         <select
@@ -136,8 +135,9 @@ const FilterBar = ({
           className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none"
         >
           <option value="">All Budgets</option>
-          <option value="400">$400+</option> <option value="600">$600+</option>{" "}
-          <option value="800">$800+</option>{" "}
+          <option value="400">$400+</option>
+          <option value="600">$600+</option>
+          <option value="800">$800+</option>
           <option value="1000">$1,000+</option>
         </select>
       </div>
@@ -147,28 +147,30 @@ const FilterBar = ({
 
 // --- Main Page Component ---
 export default function JobsPage() {
-  const [jobs, setJobs] = useState([]);
-  const [filters, setFilters] = useState({
-    price: "",
-    language: "",
-    niche: "",
-  });
+  // State for the complete, unfiltered list of jobs from the API
+  const [allJobs, setAllJobs] = useState([]);
+  // State to hold the dynamically generated unique niches for the filter
+  const [uniqueNiches, setUniqueNiches] = useState([]);
+
+  // State for the current filter values and search term
+  const [filters, setFilters] = useState({ price: "", niche: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Fetch ALL jobs ONCE on component mount
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchAllJobs = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams({
-          search: searchTerm,
-          niche: filters.niche,
-          language: filters.language,
-          price: filters.price,
-        }).toString();
-        const res = await fetch(`/api/campaigns?${query}`);
+        const res = await fetch(`/api/campaigns`);
         const data = await res.json();
-        setJobs(data.campaigns || []);
+        const jobsData = data.campaigns || [];
+        setAllJobs(jobsData);
+
+        // --- Logic to extract unique niches from the fetched data ---
+        const allNichesFromData = jobsData.flatMap((job) => job.niches);
+        const uniqueNichesData = [...new Set(allNichesFromData)];
+        setUniqueNiches(uniqueNichesData);
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
@@ -176,10 +178,31 @@ export default function JobsPage() {
       }
     };
 
-    const debounceFetch = setTimeout(fetchJobs, 300); // Debounce API calls
-    return () => clearTimeout(debounceFetch);
-  }, [filters, searchTerm]);
+    fetchAllJobs();
+  }, []); // Empty dependency array ensures this runs only once
 
+  // Perform filtering on the client-side whenever the master list or filters change
+  const filteredJobs = useMemo(() => {
+    return allJobs.filter((job) => {
+      const searchLower = searchTerm.toLowerCase();
+      const priceThreshold = parseInt(filters.price, 10);
+
+      const matchesSearch =
+        searchTerm === "" ||
+        job.title.toLowerCase().includes(searchLower) ||
+        job.brand?.companyName.toLowerCase().includes(searchLower) ||
+        job.description.toLowerCase().includes(searchLower);
+
+      const matchesNiche =
+        filters.niche === "" || job.niches.includes(filters.niche);
+
+      const matchesPrice = !priceThreshold || job.budget.max >= priceThreshold;
+
+      return matchesSearch && matchesNiche && matchesPrice;
+    });
+  }, [allJobs, searchTerm, filters]);
+
+  // Handlers to update state
   const handleFilterChange = (e) =>
     setFilters((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
@@ -202,14 +225,18 @@ export default function JobsPage() {
           handleFilterChange={handleFilterChange}
           searchTerm={searchTerm}
           handleSearchChange={handleSearchChange}
+          uniqueNiches={uniqueNiches}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
+            // Show skeletons while loading the initial data
             [...Array(6)].map((_, i) => <JobCardSkeleton key={i} />)
-          ) : jobs.length > 0 ? (
-            jobs.map((job) => <JobCard key={job._id} job={job} />)
+          ) : filteredJobs.length > 0 ? (
+            // Display the filtered jobs
+            filteredJobs.map((job) => <JobCard key={job._id} job={job} />)
           ) : (
+            // Display a message if no jobs match the filters
             <div className="col-span-full text-center py-16 bg-slate-800/50 rounded-lg">
               <h3 className="text-2xl font-semibold text-slate-300">
                 No Jobs Found
